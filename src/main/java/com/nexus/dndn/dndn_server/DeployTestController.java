@@ -9,6 +9,6 @@ public class DeployTestController {
 
     @GetMapping("/")
     public String testDeploy() {
-        return "<h1>CI/CD 파이프라인이 정상적으로 작동 중입니다.</h1>";
+        return "<h1>CI/CD 정상 작동</h1>";
     }
 }

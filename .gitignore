@@ -37,7 +37,7 @@ out/
 .vscode/
 
 # Spring 환경 설정
-src/main/resources/application*.yml
+src/main/resources/application-prod.yml
 
 # 환경 변수 파일
 .env*

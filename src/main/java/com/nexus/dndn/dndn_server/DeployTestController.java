@@ -9,6 +9,6 @@ public class DeployTestController {
 
     @GetMapping("/")
     public String testDeploy() {
-        return "<h1>CI/CD 정상 작동</h1>";
+        return "<h2>DNDN 서버에 오신 것을 환영합니다!</h2>";
     }
 }

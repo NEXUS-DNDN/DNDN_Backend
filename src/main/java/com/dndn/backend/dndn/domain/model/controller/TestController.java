@@ -14,10 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/test")
 public class TestController {
 
-    @GetMapping("/execute")
+    @GetMapping("/test/execute")
     @Operation(summary = "테스트 API", description = "예 : path variable을 통해 id를 주세요.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON_200", description = "OK, 테스트를 성공했습니다.")

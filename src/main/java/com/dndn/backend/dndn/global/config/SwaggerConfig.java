@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
     @Bean
-    public OpenAPI itContestAPI() {
+    public OpenAPI DNDNAPI() {
         Info info = new Info()
                 .title("DNDN API")
                 .description("DNDN API 명세서")

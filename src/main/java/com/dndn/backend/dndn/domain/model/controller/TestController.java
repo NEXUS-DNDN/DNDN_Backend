@@ -32,6 +32,6 @@ public class TestController {
     }
     @GetMapping("/")
     public String testDeploy() {
-        return "<h2>배포 및 CI/CD 테스트 성공</h2>";
+        return "<h2>배포 및 CI/CD 테스트 성공!</h2>";
     }
 }

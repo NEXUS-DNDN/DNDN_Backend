@@ -11,7 +11,9 @@ echo "> Build 파일을 복사합니다."
 cp $REPOSITORY/*.jar $REPOSITORY/
 
 echo "> 새 애플리케이션 배포"
-JAR_NAME=$(ls -tr $REPOSITORY/*.jar | tail -n 1)
+
+# plain.jar을 제외한 실행 가능한 jar만 선택
+JAR_NAME=$(ls -tr $REPOSITORY/*.jar | grep -v 'plain' | tail -n 1)
 
 echo "> JAR NAME: $JAR_NAME"
 

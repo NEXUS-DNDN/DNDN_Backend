@@ -73,7 +73,7 @@
 📌 이슈 이름 예시:  
 `[Feat] 작업 내용`
 
-## Issue Template
+## 🧩 Issue Template
 
 ```
 ## 어떤 기능인가요?
@@ -87,7 +87,7 @@
 - [ ] TODO
 ```
 
-## PR Template
+## ✅ PR Template
 
 ```
 #️⃣연관된 이슈
@@ -102,6 +102,14 @@ ex) #이슈번호, #이슈번호
 ex) 메서드 XXX의 이름을 더 잘 짓고 싶은데 혹시 좋은 명칭이 있을까요?
 ```
 
-## 커밋 규칙
+## 🧾 커밋 규칙
 
 - feat[#23]: 로그인 API 구현
+
+## 🗃️ ERD
+
+<img width="1620" height="1272" alt="DNDN_ERD_최종" src="https://github.com/user-attachments/assets/56cc128a-d2fc-4a39-848f-33d8d58794d9" />
+
+
+
+

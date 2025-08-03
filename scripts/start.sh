@@ -24,6 +24,12 @@ IDLE_PROFILE=$(find_idle_profile)
 
 echo "> 새 애플리케이션을 $IDLE_PROFILE 로 실행합니다."
 
+# ===== 환경변수 설정 =====
+export DB_URL=jdbc:mysql://localhost:3306/dndnDB
+export DB_USERNAME=root
+export DB_PASSWORD=pyj0402
+# ========================
+
 nohup java -jar \
   -Dspring.profiles.active=$IDLE_PROFILE,prod \
   $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &

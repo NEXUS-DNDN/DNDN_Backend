@@ -11,13 +11,12 @@ import java.util.Date;
 
 @Entity
 @Getter
-@Setter
 @DynamicInsert
 @DynamicUpdate
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member extends BaseEntity {
+public class User extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

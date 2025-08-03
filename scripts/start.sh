@@ -37,7 +37,7 @@ nohup java -jar \
 # 🔥 실행 후 Nginx에서 사용할 포트 정보 기록
 if [ $IDLE_PROFILE == real1 ]
 then
-  echo "set \$service_url http://localhost:8081;" | sudo tee /home/ubuntu/service-url.inc
+  echo "set \$service_url http://127.0.0.1:8081;" | sudo tee /home/ubuntu/service-url.inc
 else
-  echo "set \$service_url http://localhost:8082;" | sudo tee /home/ubuntu/service-url.inc
+  echo "set \$service_url http://127.0.0.1:8082;" | sudo tee /home/ubuntu/service-url.inc
 fi

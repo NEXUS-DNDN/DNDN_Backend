@@ -25,8 +25,5 @@ IDLE_PROFILE=$(find_idle_profile)
 echo "> 새 애플리케이션을 $IDLE_PROFILE 로 실행합니다."
 
 nohup java -jar \
-  -Dspring.config.location=/home/ubuntu/app/config/application.yml,\
-/home/ubuntu/app/config/application-prod.yml,\
-/home/ubuntu/app/config/application-${IDLE_PROFILE}.yml \
   -Dspring.profiles.active=$IDLE_PROFILE,prod \
   $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &

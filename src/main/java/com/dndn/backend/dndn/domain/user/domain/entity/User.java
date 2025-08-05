@@ -1,16 +1,13 @@
 package com.dndn.backend.dndn.domain.user.domain.entity;
 
 import com.dndn.backend.dndn.domain.model.entity.BaseEntity;
-import com.dndn.backend.dndn.domain.model.enums.AdditionalInformation;
-import com.dndn.backend.dndn.domain.model.enums.EmploymentType;
-import com.dndn.backend.dndn.domain.model.enums.FamilyType;
-import com.dndn.backend.dndn.domain.model.enums.GenderType;
+import com.dndn.backend.dndn.domain.model.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -34,7 +31,7 @@ public class User extends BaseEntity {
 
     // 생년월일
     @Column(name="birth_date")
-    private Date birthday;
+    private LocalDate birthday;
 
     // 주소
     @Column(length = 100)
@@ -44,7 +41,9 @@ public class User extends BaseEntity {
     private int householdNumber;
 
     // 월 소득
-    private int monthlyIncome;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private IncomeRange monthlyIncome;
 
     // 성별
     @Enumerated(EnumType.STRING)
@@ -66,5 +65,14 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private AdditionalInformation additionalInformation;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="senior_id")
+    private Senior senior;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="disabled_id")
+    private Disabled disabled;
+
+    //프로필 사진
     private String profileUrl;
 }

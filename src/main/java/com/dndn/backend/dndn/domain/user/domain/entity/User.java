@@ -19,6 +19,7 @@ import java.time.LocalDate;
 public class User extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="user_id")
     private Long id;
 
     // 이름
@@ -65,13 +66,24 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private AdditionalInformation additionalInformation;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="senior_id")
-    private Senior senior;
+    // 노인일 경우
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Senior seniorInfo;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="disabled_id")
-    private Disabled disabled;
+    //장애인일 경우
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Disabled disabledInfo;
+
+    //연관관계 관련 메소드
+    public void setSeniorInfo(Senior seniorInfo) {
+        this.seniorInfo = seniorInfo;
+        seniorInfo.registerUser(this);
+    }
+
+    public void setDisabledInfo(Disabled disabledInfo) {
+        this.disabledInfo = disabledInfo;
+        disabledInfo.registerUser(this);
+    }
 
     //프로필 사진
     private String profileUrl;

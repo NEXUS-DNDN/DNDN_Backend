@@ -1,19 +1,30 @@
 package com.dndn.backend.dndn.domain.user.domain.entity;
 
-import com.dndn.backend.dndn.domain.model.enums.DisabilityType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
 public class Senior {
 
     @Id @GeneratedValue
-    @Column(name="senior_id")
     private int id;
 
-    @OneToOne(mappedBy = "senior")
+    @OneToOne
+    @JoinColumn(name="user_id")
     private User user;
 
     private boolean livingWithChildren;
 
     private boolean houseHolder;
+
+    public void registerUser(User user) {
+        this.user = user;
+    }
 }

@@ -26,3 +26,9 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.jdbc.core: DEBUG
+
+openapi:
+  central:
+    base-url: api.bokjiro.go.kr
+    service-key: ${OPENAPI_CENTRAL_SERVICE_KEY}
+

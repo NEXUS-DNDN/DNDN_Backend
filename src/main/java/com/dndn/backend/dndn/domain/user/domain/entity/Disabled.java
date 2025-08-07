@@ -25,6 +25,7 @@ public class Disabled {
 
     private int disabillityGrade;
 
+    @Enumerated(EnumType.STRING)
     private DisabilityType disabilityType;
 
     public void registerUser(User user) {

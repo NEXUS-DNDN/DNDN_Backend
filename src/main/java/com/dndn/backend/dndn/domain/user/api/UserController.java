@@ -8,6 +8,7 @@ import com.dndn.backend.dndn.domain.user.service.UserService;
 import com.dndn.backend.dndn.global.common.response.BaseResponse;
 import com.dndn.backend.dndn.global.error.code.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +47,7 @@ public class UserController {
             @RequestBody SeniorRequestDTO dto) {
 
         Senior senior = userService.registerSeniorInfo(userId, dto);
+
         return BaseResponse.onSuccess(
                 SuccessStatus.OK,
                 SeniorResponseDTO.from(senior));
@@ -64,21 +66,39 @@ public class UserController {
                 DisabledResponseDTO.from(info));
     }
 
-//    @GetMapping("/{user-id}/senior")
-//    public BaseResponse<SeniorResponseDTO> getSeniorInfo(@PathVariable("user-id") Long userId) {
-//        Senior senior = userService.getSeniorInfo(userId);
-//        return BaseResponse.onSuccess(SuccessStatus.OK, SeniorResponseDTO.from(senior));
-//
-//
-//    }
-//
-//    @GetMapping("/{user-id}/disabled")
-//    public BaseResponse<DisabledResponseDTO> getDisabledInfo(@PathVariable("user-id") Long userId) {
-//        Disabled info = userService.getDisabledInfo(userId);
-//        return BaseResponse.onSuccess(SuccessStatus.OK, DisabledResponseDTO.from(info));
-//    }
+    @GetMapping("/{user-id}/senior")
+    @Operation(summary = "노인 정보 불러오기", description = "노인의 기본 정보를 불러옵니다.")
+    public BaseResponse<SeniorResponseDTO> getSeniorInfo(@PathVariable("user-id") Long userId) {
+
+        Senior senior = userService.getSeniorInfo(userId);
+        return BaseResponse.onSuccess(
+                SuccessStatus.OK,
+                SeniorResponseDTO.from(senior));
 
 
+    }
+
+    @GetMapping("/{user-id}/disabled")
+    @Operation(summary = "장애인 정보 불러오기", description = "장애인의 기본 정보를 불러옵니다.")
+    public BaseResponse<DisabledResponseDTO> getDisabledInfo(@PathVariable("user-id") Long userId) {
+
+        Disabled info = userService.getDisabledInfo(userId);
+        return BaseResponse.onSuccess(
+                SuccessStatus.OK,
+                DisabledResponseDTO.from(info));
+    }
+
+    @PutMapping("/{user-id}")
+    @Operation (summary = "사용자 정보 수정하기", description = "사용자 정보를 수정합니다.")
+    public BaseResponse<UserResponseDTO> updateUserInfo(
+            @PathVariable("user-id") Long userId,
+            @RequestBody @Valid UserUpdateRequestDTO dto) {
+
+        User updatedUser= userService.updateUser(userId, dto);
+        return BaseResponse.onSuccess(
+                SuccessStatus.OK,
+                UserResponseDTO.from(updatedUser));
+    }
 
 
 }

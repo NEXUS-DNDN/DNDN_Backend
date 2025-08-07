@@ -16,7 +16,8 @@ public enum ErrorStatus implements BaseErrorCode{
 
     //User
     _USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER404", "존재하지 않는 사용자입니다."),
-    _INVALID_ADDITIONAL_INFO(HttpStatus.BAD_REQUEST, "USER4001", "추가정보 유형이 일치하지 않습니다.");
+    _INVALID_ADDITIONAL_INFO(HttpStatus.BAD_REQUEST, "USER4001", "추가정보 유형이 일치하지 않습니다."),
+    _INVALID_INFO_CHANGE(HttpStatus.BAD_REQUEST,"USER4002","유효하지 않은 사용자 입력입니다.");
 
 
     private final HttpStatus httpStatus;

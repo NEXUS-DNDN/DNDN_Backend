@@ -1,7 +1,6 @@
 package com.dndn.backend.dndn.domain.user.service;
 
 
-import com.dndn.backend.dndn.domain.model.enums.AdditionalInformation;
 import com.dndn.backend.dndn.domain.model.exception.UserException;
 import com.dndn.backend.dndn.domain.user.domain.entity.Disabled;
 import com.dndn.backend.dndn.domain.user.domain.entity.Senior;
@@ -9,12 +8,16 @@ import com.dndn.backend.dndn.domain.user.domain.entity.User;
 import com.dndn.backend.dndn.domain.user.dto.DisabledRequestDTO;
 import com.dndn.backend.dndn.domain.user.dto.SeniorRequestDTO;
 import com.dndn.backend.dndn.domain.user.dto.UserRequestDTO;
+import com.dndn.backend.dndn.domain.user.dto.UserUpdateRequestDTO;
 import com.dndn.backend.dndn.domain.user.repository.UserRepository;
 import com.dndn.backend.dndn.global.error.code.status.ErrorStatus;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.dndn.backend.dndn.domain.model.enums.AdditionalInformation.DISABLED;
+import static com.dndn.backend.dndn.domain.model.enums.AdditionalInformation.SENIOR;
 
 @Service
 @Transactional
@@ -25,6 +28,15 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User createUser(UserRequestDTO dto){
+
+        if (dto.getAdditionalInformation() == SENIOR && dto.getDisabledInfo() != null) {
+            throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
+        }
+
+        if (dto.getAdditionalInformation() == DISABLED && dto.getSeniorInfo() != null) {
+            throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
+        }
+
         User user = User.builder()
                 .name(dto.getName())
                 .phoneNumber(dto.getPhoneNumber())
@@ -40,12 +52,6 @@ public class UserService {
 
         userRepository.save(user);
 
-        if (dto.getAdditionalInformation() == AdditionalInformation.SENIOR) {
-            registerSeniorInfo(user.getId(), dto.getSeniorInfo());
-        } else if (dto.getAdditionalInformation() == AdditionalInformation.DISABLED) {
-            registerDisabledInfo(user.getId(), dto.getDisabledInfo());
-        }
-
         return user;
     }
 
@@ -59,7 +65,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
-        if (user.getAdditionalInformation() != AdditionalInformation.SENIOR) {
+        if (user.getAdditionalInformation() != SENIOR) {
             throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
         }
 
@@ -77,7 +83,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
-        if (user.getAdditionalInformation() != AdditionalInformation.DISABLED) {
+        if (user.getAdditionalInformation() != DISABLED) {
             throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
         }
 
@@ -92,23 +98,34 @@ public class UserService {
     }
 
 
-//    public Senior getSeniorInfo(Long userId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new UserNotFoundException());
-//
-//        return seniorRepository.findByUser(user)
-//                .orElseThrow(() -> new SeniorInfoNotFoundException());
-//    }
-//
-//    public Disabled getDisabledInfo(Long userId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new UserNotFoundException());
-//
-//        return disabledRepository.findByUser(user)
-//                .orElseThrow(() -> new DisabledInfoNotFoundException());
-//    }
-//
+    public Senior getSeniorInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
+        if (user.getAdditionalInformation() != SENIOR) {
+            throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
+        }
+
+        return user.getSeniorInfo();
+    }
+
+    public Disabled getDisabledInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
+
+        if (user.getAdditionalInformation() != DISABLED) {
+            throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
+        }
+
+        return user.getDisabledInfo();
+    }
+
+    public User updateUser(Long userId, UserUpdateRequestDTO dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
+
+        return user.updateInfo(dto); // 엔티티 안에 update 메서드 정의해둠
+    }
 
 
 }

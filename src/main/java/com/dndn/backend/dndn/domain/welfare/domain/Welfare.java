@@ -1,5 +1,6 @@
 package com.dndn.backend.dndn.domain.welfare.domain;
 
+import com.dndn.backend.dndn.domain.category.domain.Category;
 import com.dndn.backend.dndn.domain.model.entity.BaseEntity;
 import com.dndn.backend.dndn.domain.welfare.domain.enums.ReceiveStatus;
 import com.dndn.backend.dndn.domain.welfare.domain.enums.RequestStatus;
@@ -12,8 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -91,6 +90,10 @@ public class Welfare extends BaseEntity {
         this.requestStatus = requestStatus;
         this.receiveStatus = receiveStatus;
         this.sourceType = sourceType;
+        this.category = category;
+    }
+
+    public void updateCategory(Category category) {
         this.category = category;
     }
 

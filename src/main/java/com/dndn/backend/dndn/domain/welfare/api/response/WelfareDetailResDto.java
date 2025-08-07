@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.dndn.backend.dndn.domain.welfare.util.CategoryUtils.extractCategoryNames;
-
 @Builder
 public record WelfareDetailResDto(
         Long id,
         String title,
         String content,
         String imageUrl,
-        List<String> categoryNames,
+        List<String> lifeCycleNames,
+        List<String> householdTypeNames,
+        List<String> interestTopicNames,
         String servLink,
         String eligibleUser,
         String submitDocument,
@@ -34,7 +34,15 @@ public record WelfareDetailResDto(
                 .title(welfare.getTitle())
                 .content(welfare.getContent())
                 .imageUrl(welfare.getImageUrl())
-                .categoryNames(extractCategoryNames(welfare.getCategory()))
+                .lifeCycleNames(welfare.getCategory().getLifeCycles().stream()
+                        .map(lc -> lc.getKor())
+                        .collect(Collectors.toList()))
+                .householdTypeNames(welfare.getCategory().getHouseholdTypes().stream()
+                        .map(ht -> ht.getKor())
+                        .collect(Collectors.toList()))
+                .interestTopicNames(welfare.getCategory().getInterestTopics().stream()
+                        .map(it -> it.getKor())
+                        .collect(Collectors.toList()))
                 .servLink(welfare.getServLink())
                 .eligibleUser(welfare.getEligibleUser())
                 .submitDocument(welfare.getSubmitDocument())

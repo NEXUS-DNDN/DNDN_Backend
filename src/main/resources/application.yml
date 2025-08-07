@@ -29,6 +29,6 @@ logging:
 
 openapi:
   central:
-    base-url: api.bokjiro.go.kr
+    base-url: apis.data.go.kr
     service-key: ${OPENAPI_CENTRAL_SERVICE_KEY}
 

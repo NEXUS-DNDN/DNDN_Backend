@@ -5,15 +5,16 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static com.dndn.backend.dndn.domain.welfare.util.CategoryUtils.extractCategoryNames;
+import java.util.stream.Collectors;
 
 @Builder
 public record WelfareInfoResDto(
         Long welfareId,
         String title,
         String imageUrl,
-        List<String> categoryNames, // 상위 카테고리 이름
+        List<String> lifeCycleNames,
+        List<String> householdTypeNames,
+        List<String> interestTopicNames,
         LocalDateTime startDate,
         LocalDateTime endDate
 ) {
@@ -22,7 +23,15 @@ public record WelfareInfoResDto(
                 .welfareId(welfare.getId())
                 .title(welfare.getTitle())
                 .imageUrl(welfare.getImageUrl())
-                .categoryNames(extractCategoryNames(welfare.getCategory()))
+                .lifeCycleNames(welfare.getCategory().getLifeCycles().stream()
+                        .map(lc -> lc.getKor())
+                        .collect(Collectors.toList()))
+                .householdTypeNames(welfare.getCategory().getHouseholdTypes().stream()
+                        .map(ht -> ht.getKor())
+                        .collect(Collectors.toList()))
+                .interestTopicNames(welfare.getCategory().getInterestTopics().stream()
+                        .map(it -> it.getKor())
+                        .collect(Collectors.toList()))
                 .startDate(welfare.getStartDate())
                 .endDate(welfare.getEndDate())
                 .build();

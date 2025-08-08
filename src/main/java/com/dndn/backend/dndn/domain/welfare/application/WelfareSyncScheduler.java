@@ -1,5 +1,6 @@
 package com.dndn.backend.dndn.domain.welfare.application;
 
+import com.dndn.backend.dndn.domain.welfareOpenApi.central.client.CentralWelfareClient;
 import com.dndn.backend.dndn.domain.welfareOpenApi.local.client.LocalWelfareClient;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +14,12 @@ public class WelfareSyncScheduler {
 
     private final CentralWelfareSyncService centralWelfareSyncService;
     private final LocalWelfareSyncService localWelfareSyncService;
+    private final CentralWelfareClient centralClient;
     private final LocalWelfareClient localClient;
 
     @PostConstruct
     public void initSync() {
-        String rawXml = localClient.debugWelfareListXml(1, 10);
+        String rawXml = centralClient.debugWelfareListXml(1, 10);
         log.info("[Raw XML 출력]\n{}", rawXml);
     }
 

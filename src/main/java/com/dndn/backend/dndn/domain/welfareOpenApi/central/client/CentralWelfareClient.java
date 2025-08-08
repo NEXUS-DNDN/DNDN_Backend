@@ -3,12 +3,17 @@ package com.dndn.backend.dndn.domain.welfareOpenApi.central.client;
 import com.dndn.backend.dndn.domain.welfareOpenApi.central.dto.response.CentralDetailResDto;
 import com.dndn.backend.dndn.domain.welfareOpenApi.central.dto.response.CentralListResDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
+import java.nio.charset.StandardCharsets;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CentralWelfareClient {
@@ -21,9 +26,17 @@ public class CentralWelfareClient {
     @Value("${openapi.central.service-key}")
     private String serviceKey;
 
+    // 키를 '한 번만' 인코딩
+    private String encodeServiceKeyOnce(String k){
+        k = k == null ? "" : k.trim();
+        if (k.contains("%")) return k; // 이미 인코딩된 키면 그대로
+        return UriUtils.encodeQueryParam(k, StandardCharsets.UTF_8);
+    }
+
+
     public CentralListResDto getWelfareList(int page, int numOfRows) {
         String url = UriComponentsBuilder.newInstance()
-                .scheme("http")
+                .scheme("https")
                 .host(baseUrl)
                 .path("/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001")
                 .queryParam("serviceKey", serviceKey)
@@ -31,7 +44,7 @@ public class CentralWelfareClient {
                 .queryParam("pageNo", page)
                 .queryParam("numOfRows", numOfRows)
                 .queryParam("srchKeyCode", "003")
-                .build()
+                .build(false)
                 .toUriString();
 
         HttpHeaders headers = new HttpHeaders();
@@ -51,13 +64,13 @@ public class CentralWelfareClient {
 
     public CentralDetailResDto getWelfareDetail(String servId) {
         String url = UriComponentsBuilder.newInstance()
-                .scheme("http")
+                .scheme("https")
                 .host(baseUrl)
                 .path("/B554287/NationalWelfareInformationsV001/NationalWelfaredetailV001")
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("callTp", "D")
                 .queryParam("servId", servId)
-                .build()
+                .build(false)
                 .toUriString();
 
         HttpHeaders headers = new HttpHeaders();
@@ -78,26 +91,26 @@ public class CentralWelfareClient {
 
     // 테스트용
     public String debugWelfareListXml(int page, int numOfRows) {
-        String rawUrl = "http://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001"
-                + "?serviceKey=ak8Ud2Tri7EB6Z+R2xErOr0KsxAZxsqL93NEj/5lbXcvfTPNvozAnr7hYwF7kRlMmV/d60SYzqbpdC260aWBZg=="
-                + "&callTp=L"
-                + "&pageNo=1"
-                + "&numOfRows=10"
-                + "&srchKeyCode=001";
+        String encodedKey = encodeServiceKeyOnce(serviceKey);
 
-        HttpHeaders headers = new HttpHeaders();
+        String url = UriComponentsBuilder.newInstance()
+                .scheme("https")
+                .host(baseUrl) // "apis.data.go.kr"
+                .path("/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001")
+                .queryParam("serviceKey", encodedKey) // 디코딩 키면 OK
+                .queryParam("callTp", "L")
+                .queryParam("pageNo", page)
+                .queryParam("numOfRows", numOfRows)
+                .queryParam("srchKeyCode", "001")
+                .build(false)
+                .toUriString();
 
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                rawUrl,
-                HttpMethod.GET,
-                entity,
-                String.class
-        );
-
-        System.out.println("✅ Raw XML 응답: \n" + response.getBody()); // 👈 여기가 핵심
-        return response.getBody();
+        log.info("최종 URL = {}", url);
+        ResponseEntity<String> res = restTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, String.class);
+        log.info("Raw XML:\n{}", res.getBody());
+        return res.getBody();
     }
+
+
 
 }

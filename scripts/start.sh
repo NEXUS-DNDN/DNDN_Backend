@@ -24,9 +24,20 @@ IDLE_PROFILE=$(find_idle_profile)
 
 echo "> 새 애플리케이션을 $IDLE_PROFILE 로 실행합니다."
 
+# ===== 환경변수 설정 =====
+export DB_URL=jdbc:mysql://localhost:3306/dndnDB
+export DB_USERNAME=root
+export DB_PASSWORD=pyj0402
+# ========================
+
 nohup java -jar \
-  -Dspring.config.location=/home/ubuntu/app/config/application.yml,\
-/home/ubuntu/app/config/application-prod.yml,\
-/home/ubuntu/app/config/application-${IDLE_PROFILE}.yml \
   -Dspring.profiles.active=$IDLE_PROFILE,prod \
   $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
+
+# 🔥 실행 후 Nginx에서 사용할 포트 정보 기록
+if [ $IDLE_PROFILE == real1 ]
+then
+  echo "set \$service_url http://127.0.0.1:8081;" | sudo tee /home/ubuntu/service-url.inc
+else
+  echo "set \$service_url http://127.0.0.1:8082;" | sudo tee /home/ubuntu/service-url.inc
+fi

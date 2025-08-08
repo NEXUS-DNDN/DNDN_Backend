@@ -1,4 +1,4 @@
-package com.dndn.backend.dndn.domain.member.domain.entity;
+package com.dndn.backend.dndn.domain.user.domain.entity;
 
 import com.dndn.backend.dndn.domain.model.entity.BaseEntity;
 import com.dndn.backend.dndn.domain.model.enums.GenderType;
@@ -11,16 +11,22 @@ import java.util.Date;
 
 @Entity
 @Getter
-@Setter
 @DynamicInsert
 @DynamicUpdate
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member extends BaseEntity {
+public class User extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // 소셜 아이디
+    @Column(name = "social_id", nullable = false, unique = true)
+    private String socialId;
+
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
 
     // 이름
     @Column(length = 20)

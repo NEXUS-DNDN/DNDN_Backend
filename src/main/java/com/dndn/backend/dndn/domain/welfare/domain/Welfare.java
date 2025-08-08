@@ -35,8 +35,17 @@ public class Welfare extends BaseEntity {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    // 상세 링크
     @Column(name = "service_link", length = 1000)
     private String servLink;
+
+    // 시도명
+    @Column(name = "ctpv_nm", length = 50, nullable = true)
+    private String ctpvNm;
+
+    // 시군구명
+    @Column(name = "sgg_nm", length = 50, nullable = true)
+    private String sggNm;
 
     // 대상자 설명
     @Column(name = "eligible_user", length = 1000, nullable = false)
@@ -74,7 +83,9 @@ public class Welfare extends BaseEntity {
     private SourceType sourceType;
 
     @Builder
-    private Welfare(String servId, String title, String content, String servLink, String imageUrl, String eligibleUser,
+    private Welfare(String servId, String title, String content, String servLink,
+                    String ctpvNm, String sggNm,
+                    String imageUrl, String eligibleUser,
                     String submitDocument, LocalDateTime startDate, LocalDateTime endDate,
                     RequestStatus requestStatus, ReceiveStatus receiveStatus,
                     SourceType sourceType, Category category) {
@@ -82,6 +93,8 @@ public class Welfare extends BaseEntity {
         this.title = title;
         this.content = content;
         this.servLink = servLink;
+        this.ctpvNm = ctpvNm;
+        this.sggNm = sggNm;
         this.imageUrl = imageUrl;
         this.eligibleUser = eligibleUser;
         this.submitDocument = submitDocument;
@@ -95,6 +108,11 @@ public class Welfare extends BaseEntity {
 
     public void updateCategory(Category category) {
         this.category = category;
+    }
+
+    public void updateRegion(String ctpvNm, String sggNm) {
+        this.ctpvNm = ctpvNm;
+        this.sggNm = sggNm;
     }
 
     public void update(String content, String servLink, String eligibleUser, String submitDocument) {

@@ -20,6 +20,8 @@ public record WelfareDetailResDto(
         List<String> householdTypeNames,
         List<String> interestTopicNames,
         String servLink,
+        String ctpvNm,
+        String sggNm,
         String eligibleUser,
         String submitDocument,
         LocalDateTime startDate,
@@ -44,6 +46,8 @@ public record WelfareDetailResDto(
                         .map(it -> it.getKor())
                         .collect(Collectors.toList()))
                 .servLink(welfare.getServLink())
+                .ctpvNm(welfare.getCtpvNm())
+                .sggNm(welfare.getSggNm())
                 .eligibleUser(welfare.getEligibleUser())
                 .submitDocument(welfare.getSubmitDocument())
                 .startDate(welfare.getStartDate())

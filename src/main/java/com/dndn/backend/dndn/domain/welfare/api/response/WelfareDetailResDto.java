@@ -26,8 +26,6 @@ public record WelfareDetailResDto(
         String submitDocument,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        RequestStatus requestStatus,
-        ReceiveStatus receiveStatus,
         SourceType sourceType
 ) {
     public static WelfareDetailResDto of(Welfare welfare) {
@@ -52,8 +50,6 @@ public record WelfareDetailResDto(
                 .submitDocument(welfare.getSubmitDocument())
                 .startDate(welfare.getStartDate())
                 .endDate(welfare.getEndDate())
-                .requestStatus(welfare.getRequestStatus())
-                .receiveStatus(welfare.getReceiveStatus())
                 .sourceType(welfare.getSourceType())
                 .build();
     }

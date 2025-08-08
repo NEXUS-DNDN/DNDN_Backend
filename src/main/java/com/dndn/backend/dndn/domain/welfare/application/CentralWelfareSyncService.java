@@ -5,10 +5,7 @@ import com.dndn.backend.dndn.domain.category.domain.Category;
 import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
 import com.dndn.backend.dndn.domain.category.domain.enums.InterestTopic;
 import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
-import com.dndn.backend.dndn.domain.category.domain.repository.CategoryRepository;
 import com.dndn.backend.dndn.domain.welfare.domain.Welfare;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.ReceiveStatus;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.RequestStatus;
 import com.dndn.backend.dndn.domain.welfare.domain.enums.SourceType;
 import com.dndn.backend.dndn.domain.welfare.domain.repository.WelfareRepository;
 import com.dndn.backend.dndn.domain.welfareOpenApi.central.client.CentralWelfareClient;
@@ -87,8 +84,6 @@ public class CentralWelfareSyncService {
                             .submitDocument(wantedDtl.getAlwServCn())
                             .startDate(null)
                             .endDate(null)
-                            .requestStatus(RequestStatus.NOT_REQUESTED)
-                            .receiveStatus(ReceiveStatus.NOT_RECEIVED)
                             .sourceType(SourceType.CENTRAL)
                             .category(category)
                             .build();

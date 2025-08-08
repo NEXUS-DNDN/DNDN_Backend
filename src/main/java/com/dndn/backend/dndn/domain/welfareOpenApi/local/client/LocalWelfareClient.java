@@ -3,7 +3,6 @@ package com.dndn.backend.dndn.domain.welfareOpenApi.local.client;
 import com.dndn.backend.dndn.domain.welfareOpenApi.local.dto.response.LocalDetailResDto;
 import com.dndn.backend.dndn.domain.welfareOpenApi.local.dto.response.LocalListResDto;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -66,5 +65,28 @@ public class LocalWelfareClient {
                 url, HttpMethod.GET, new HttpEntity<>(headers), LocalDetailResDto.class);
 
         return resp.getBody();
+    }
+
+    /**
+     * 테스트용 - Raw XML 출력
+     */
+    public String debugWelfareListXml(int page, int numOfRows) {
+        String rawUrl = "https://apis.data.go.kr/B554287/LocalGovernmentWelfareInformations/LcgvWelfarelist"
+                + "?serviceKey=" + serviceKey
+                + "&pageNo=" + page
+                + "&numOfRows=" + numOfRows;
+
+        HttpEntity<Void> entity = new HttpEntity<>(new HttpHeaders());
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                rawUrl,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        System.out.println("serviceKey 출력: "+ serviceKey);
+        System.out.println("✅ Raw XML 응답: \n" + response.getBody());
+        return response.getBody();
     }
 }

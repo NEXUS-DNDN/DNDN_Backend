@@ -2,8 +2,6 @@ package com.dndn.backend.dndn.domain.welfare.domain;
 
 import com.dndn.backend.dndn.domain.category.domain.Category;
 import com.dndn.backend.dndn.domain.model.entity.BaseEntity;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.ReceiveStatus;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.RequestStatus;
 import com.dndn.backend.dndn.domain.welfare.domain.enums.SourceType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -63,16 +61,6 @@ public class Welfare extends BaseEntity {
     @Column(name = "end_date", nullable = true)
     private LocalDateTime endDate;
 
-    // 신청 상태
-    @Enumerated(EnumType.STRING)
-    @Column(name = "request_status", nullable = false, length = 20)
-    private RequestStatus requestStatus;
-
-    // 수령 상태
-    @Enumerated(EnumType.STRING)
-    @Column(name = "receive_status", nullable = false, length = 20)
-    private ReceiveStatus receiveStatus;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnore
@@ -87,7 +75,6 @@ public class Welfare extends BaseEntity {
                     String ctpvNm, String sggNm,
                     String imageUrl, String eligibleUser,
                     String submitDocument, LocalDateTime startDate, LocalDateTime endDate,
-                    RequestStatus requestStatus, ReceiveStatus receiveStatus,
                     SourceType sourceType, Category category) {
         this.servId = servId;
         this.title = title;
@@ -100,8 +87,6 @@ public class Welfare extends BaseEntity {
         this.submitDocument = submitDocument;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.requestStatus = requestStatus;
-        this.receiveStatus = receiveStatus;
         this.sourceType = sourceType;
         this.category = category;
     }
@@ -122,5 +107,9 @@ public class Welfare extends BaseEntity {
         this.submitDocument = submitDocument;
     }
 
+    public void updatePeriod(LocalDateTime start, LocalDateTime end) {
+        this.startDate = start;
+        this.endDate = end;
+    }
 
 }

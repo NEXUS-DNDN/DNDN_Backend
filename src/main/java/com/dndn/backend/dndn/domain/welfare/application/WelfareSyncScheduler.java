@@ -1,12 +1,9 @@
 package com.dndn.backend.dndn.domain.welfare.application;
 
-import com.dndn.backend.dndn.domain.category.domain.repository.CategoryRepository;
-import com.dndn.backend.dndn.domain.welfare.domain.repository.WelfareRepository;
-import com.dndn.backend.dndn.domain.welfareOpenApi.central.client.CentralWelfareClient;
+import com.dndn.backend.dndn.domain.welfareOpenApi.local.client.LocalWelfareClient;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,14 +13,15 @@ public class WelfareSyncScheduler {
 
     private final CentralWelfareSyncService centralWelfareSyncService;
     private final LocalWelfareSyncService localWelfareSyncService;
-
-    /*@PostConstruct
-    public void initSync() {
-        String rawXml = centralClient.debugWelfareListXml(1, 10);
-        log.info("[Raw XML 출력]\n{}", rawXml);
-    }*/
+    private final LocalWelfareClient localClient;
 
     @PostConstruct
+    public void initSync() {
+        String rawXml = localClient.debugWelfareListXml(1, 10);
+        log.info("[Raw XML 출력]\n{}", rawXml);
+    }
+
+    /*@PostConstruct
     public void initSync() {
         log.info("[복지 동기화] 초기 실행 시작");
         centralWelfareSyncService.syncCentralWelfareData();
@@ -35,7 +33,7 @@ public class WelfareSyncScheduler {
         log.info("[복지 동기화] 스케줄 실행 시작");
         centralWelfareSyncService.syncCentralWelfareData();
         localWelfareSyncService.syncLocalWelfareData();
-    }
+    }*/
 
 
     /*@PostConstruct

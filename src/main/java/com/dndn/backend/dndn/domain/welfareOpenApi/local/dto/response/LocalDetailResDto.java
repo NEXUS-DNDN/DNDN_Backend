@@ -42,6 +42,9 @@ public class LocalDetailResDto {
     @JacksonXmlProperty(localName = "lifeNmArray")
     private String lifeNmArray;
 
+    @JacksonXmlProperty(localName = "trgterIndvdlNmArray")
+    private String trgterIndvdlNmArray;
+
     @JacksonXmlProperty(localName = "intrsThemaNmArray")
     private String intrsThemaNmArray;
 
@@ -74,6 +77,9 @@ public class LocalDetailResDto {
 
     @JacksonXmlProperty(localName = "inqplCtadrList")
     private RelatedInfo inqplCtadrList;
+
+    @JacksonXmlProperty(localName = "inqplHmpgReldList")
+    private RelatedInfo inqplHmpgReldList;
 
     @JacksonXmlProperty(localName = "baslawList")
     private RelatedInfo baslawList;

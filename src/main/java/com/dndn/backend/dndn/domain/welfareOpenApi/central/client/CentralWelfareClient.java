@@ -96,7 +96,8 @@ public class CentralWelfareClient {
                 String.class
         );
 
-        System.out.println("✅ Raw XML 응답: \n" + response.getBody()); // 👈 여기가 핵심
+        System.out.println("✅ Raw XML 응답: \n" + response.getBody());
+        System.out.println("serviceKey 출력: "+ serviceKey);
         return response.getBody();
     }
 

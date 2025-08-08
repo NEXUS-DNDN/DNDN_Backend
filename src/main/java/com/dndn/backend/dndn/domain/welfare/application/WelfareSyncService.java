@@ -35,7 +35,7 @@ public class WelfareSyncService {
 
     @PostConstruct
     public void initSync() {
-        String rawXml = centralClient.debugWelfareListXml(1, 10); // 한 페이지만 테스트
+        String rawXml = centralClient.debugWelfareListXml(1, 10);
         log.info("[Raw XML 출력]\n{}", rawXml);
     }
 

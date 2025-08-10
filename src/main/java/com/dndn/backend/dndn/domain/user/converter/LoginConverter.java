@@ -111,4 +111,12 @@ public class LoginConverter {
                 .isNewUser(false)
                 .build();
     }
+
+    // 자동 로그인
+    public static AuthResponseDTO.AutoLoginResult toAutoLoginResponse(Long userId, boolean valid) {
+        return AuthResponseDTO.AutoLoginResult.builder()
+                .valid(valid)
+                .userId(userId)
+                .build();
+    }
 }

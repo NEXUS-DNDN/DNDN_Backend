@@ -1,7 +1,8 @@
 package com.dndn.backend.dndn.domain.user.domain.entity;
 
 import com.dndn.backend.dndn.domain.model.entity.BaseEntity;
-import com.dndn.backend.dndn.domain.model.enums.GenderType;
+import com.dndn.backend.dndn.domain.model.enums.*;
+import com.dndn.backend.dndn.domain.user.dto.UserUpdateRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;

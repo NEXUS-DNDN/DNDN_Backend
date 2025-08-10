@@ -1,5 +1,6 @@
 package com.dndn.backend.dndn.domain.user.api;
 
+import com.dndn.backend.dndn.domain.model.enums.IncomeRange;
 import com.dndn.backend.dndn.domain.user.application.GooGleOAuthClient;
 import com.dndn.backend.dndn.domain.user.application.KakaoOAuthClient;
 import com.dndn.backend.dndn.domain.user.application.NaverOAuthClient;
@@ -96,7 +97,7 @@ public class WebTestController {
                                 .birthday(null)
                                 .address("미입력")
                                 .householdNumber(0)
-                                .monthlyIncome(0)
+                                .monthlyIncome(IncomeRange.UNDER_100)
                                 .gender(GenderType.UNKNOWN)
                                 .build()
                 ));
@@ -147,7 +148,7 @@ public class WebTestController {
                                 .birthday(null)
                                 .address("미입력")
                                 .householdNumber(0)
-                                .monthlyIncome(0)
+                                .monthlyIncome(IncomeRange.UNDER_100)
                                 .gender(GenderType.UNKNOWN)
                                 .build()
                 ));
@@ -198,7 +199,7 @@ public class WebTestController {
                                 .birthday(null)
                                 .address("미입력")
                                 .householdNumber(0)
-                                .monthlyIncome(0)
+                                .monthlyIncome(IncomeRange.UNDER_100)
                                 .gender(GenderType.UNKNOWN)
                                 .build()
                 ));

@@ -5,11 +5,12 @@ import com.dndn.backend.dndn.domain.model.exception.UserException;
 import com.dndn.backend.dndn.domain.user.domain.entity.Disabled;
 import com.dndn.backend.dndn.domain.user.domain.entity.Senior;
 import com.dndn.backend.dndn.domain.user.domain.entity.User;
+import com.dndn.backend.dndn.domain.user.domain.repository.UserRepository;
 import com.dndn.backend.dndn.domain.user.dto.DisabledRequestDTO;
 import com.dndn.backend.dndn.domain.user.dto.SeniorRequestDTO;
 import com.dndn.backend.dndn.domain.user.dto.UserRequestDTO;
 import com.dndn.backend.dndn.domain.user.dto.UserUpdateRequestDTO;
-import com.dndn.backend.dndn.domain.user.repository.UserRepository;
+
 import com.dndn.backend.dndn.global.error.code.status.ErrorStatus;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;

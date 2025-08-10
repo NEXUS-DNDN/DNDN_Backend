@@ -58,8 +58,8 @@ public class LoginController {
             @ApiResponse(responseCode = "TOKEN_401", description = "유효하지 않거나 만료된 refreshToken"),
             @ApiResponse(responseCode = "TOKEN_404", description = "Redis에 해당 userId의 refreshToken이 존재하지 않음")
     })
-    public ResponseEntity<AuthResponseDTO.LoginResult> refreshToken(@RequestBody AuthRequestDTO.RefreshToken request) {
+    public BaseResponse<AuthResponseDTO.LoginResult> refreshToken(@RequestBody AuthRequestDTO.RefreshToken request) {
         AuthResponseDTO.LoginResult result = loginService.refreshToken(request.getUserId(), request.getRefreshToken());
-        return ResponseEntity.ok(result);
+        return BaseResponse.onSuccess(SuccessStatus.SUCCESS_TOKEN_REFRESH, result);
     }
 }

@@ -1,11 +1,14 @@
 package com.dndn.backend.dndn.domain.user.application;
 
+import com.dndn.backend.dndn.domain.model.enums.IncomeRange;
 import com.dndn.backend.dndn.domain.user.converter.LoginConverter;
 import com.dndn.backend.dndn.domain.user.dto.AuthResponseDTO;
 import com.dndn.backend.dndn.domain.model.enums.GenderType;
 import com.dndn.backend.dndn.domain.user.domain.entity.User;
 import com.dndn.backend.dndn.domain.user.domain.repository.UserRepository;
+import com.dndn.backend.dndn.domain.user.exception.UserException;
 import com.dndn.backend.dndn.global.config.security.jwt.JwtUtil;
+import com.dndn.backend.dndn.global.error.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -45,7 +48,7 @@ public class LoginServiceImpl implements LoginService {
                         .birthday(null)
                         .address("미입력")
                         .householdNumber(0)
-                        .monthlyIncome(0)
+                        .monthlyIncome(IncomeRange.UNDER_100)
                         .gender(GenderType.UNKNOWN)
                         .build()
         );
@@ -89,7 +92,7 @@ public class LoginServiceImpl implements LoginService {
                         .birthday(null)
                         .address("미입력")
                         .householdNumber(0)
-                        .monthlyIncome(0)
+                        .monthlyIncome(IncomeRange.UNDER_100)
                         .gender(GenderType.UNKNOWN)
                         .build()
         ));
@@ -136,7 +139,7 @@ public class LoginServiceImpl implements LoginService {
                         .birthday(null)
                         .address("미입력")
                         .householdNumber(0)
-                        .monthlyIncome(0)
+                        .monthlyIncome(IncomeRange.UNDER_100)
                         .gender(GenderType.UNKNOWN)
                         .build()
         ));
@@ -179,7 +182,7 @@ public class LoginServiceImpl implements LoginService {
                         .birthday(null)
                         .address("미입력")
                         .householdNumber(0)
-                        .monthlyIncome(0)
+                        .monthlyIncome(IncomeRange.UNDER_100)
                         .gender(GenderType.UNKNOWN)
                         .build()
         ));
@@ -225,7 +228,7 @@ public class LoginServiceImpl implements LoginService {
                         .birthday(null)
                         .address("미입력")
                         .householdNumber(0)
-                        .monthlyIncome(0)
+                        .monthlyIncome(IncomeRange.UNDER_100)
                         .gender(GenderType.UNKNOWN)
                         .build()
         ));
@@ -268,7 +271,7 @@ public class LoginServiceImpl implements LoginService {
                         .birthday(null)
                         .address("미입력")
                         .householdNumber(0)
-                        .monthlyIncome(0)
+                        .monthlyIncome(IncomeRange.UNDER_100)
                         .gender(GenderType.UNKNOWN)
                         .build()
         ));
@@ -297,7 +300,7 @@ public class LoginServiceImpl implements LoginService {
         String storedRefreshToken = redisTemplate.opsForValue().get(redisKey);
 
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-            throw new IllegalArgumentException("❌ 유효하지 않은 refresh token입니다.");
+            throw new UserException(ErrorStatus.INVALID_REFRESH_TOKEN);
         }
 
         // 새 JWT 토큰 생성

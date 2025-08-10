@@ -1,4 +1,4 @@
-package com.dndn.backend.dndn.domain.model.controller;
+package com.dndn.backend.dndn.domain.model.api;
 
 import com.dndn.backend.dndn.domain.model.exception.TestException;
 import com.dndn.backend.dndn.global.common.response.BaseResponse;
@@ -29,7 +29,7 @@ public class TestController {
 
         return BaseResponse.onSuccess(SuccessStatus.OK, null);
     }
-    @GetMapping("/")
+    @GetMapping("/dndn")
     public String testDeploy() {
         return "<h2>DNDN 서버에 오신 것을 환영합니다</h2>";
     }

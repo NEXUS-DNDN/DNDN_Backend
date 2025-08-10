@@ -13,10 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -47,6 +44,7 @@ public class LoginController {
         return BaseResponse.onSuccess(SuccessStatus.SUCCESS_LOGIN, result);
     }
 
+    // 토큰 재발급
     @PostMapping("/refreshToken")
     @Operation(
             summary = "토큰 재발급 - refreshToken",
@@ -55,11 +53,65 @@ public class LoginController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "TOKEN_200", description = "토큰 재발급 성공"),
-            @ApiResponse(responseCode = "TOKEN_401", description = "유효하지 않거나 만료된 refreshToken"),
-            @ApiResponse(responseCode = "TOKEN_404", description = "Redis에 해당 userId의 refreshToken이 존재하지 않음")
+            @ApiResponse(responseCode = "TOKEN_4001", description = "유효하지 않거나 만료된 refreshToken"),
+            @ApiResponse(responseCode = "TOKEN_4004", description = "Redis에 해당 userId의 refreshToken이 존재하지 않음")
     })
     public BaseResponse<AuthResponseDTO.LoginResult> refreshToken(@RequestBody AuthRequestDTO.RefreshToken request) {
         AuthResponseDTO.LoginResult result = loginService.refreshToken(request.getUserId(), request.getRefreshToken());
         return BaseResponse.onSuccess(SuccessStatus.SUCCESS_TOKEN_REFRESH, result);
+    }
+
+    // 자동 로그인
+    @GetMapping("/auto-login")
+    @Operation(
+            summary = "자동 로그인 - accessToken 인증",
+            description = "앱 실행 시 저장된 accessToken이 유효한지 확인하여 자동 로그인 수행"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "AUTH_200", description = "자동 로그인 성공"),
+            @ApiResponse(responseCode = "TOKEN_4002", description = "유효하지 않거나 잘못된 accessToken입니다."),
+            @ApiResponse(responseCode = "USER_4001", description = "유저가 존재하지 않습니다.")
+    })
+    public BaseResponse<AuthResponseDTO.AutoLoginResult> autoLogin(@RequestHeader("Authorization") String accessTokenHeader) {
+
+        AuthResponseDTO.AutoLoginResult result = loginService.autoLogin(accessTokenHeader);
+
+        return BaseResponse.onSuccess(SuccessStatus.SUCCESS_LOGIN, result);
+    }
+
+    // 로그 아웃
+    @PostMapping("/logout")
+    @Operation(
+            summary = "로그아웃",
+            description = "accessToken을 기반으로 Redis에서 refreshToken을 제거하여 로그아웃합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "AUTH_200", description = "로그아웃 성공"),
+            @ApiResponse(responseCode = "TOKEN_4002", description = "유효하지 않거나 잘못된 accessToken입니다."),
+            @ApiResponse(responseCode = "USER_4001", description = "유저가 존재하지 않습니다.")
+    })
+    public BaseResponse<String> logout(@RequestHeader("Authorization") String accessTokenHeader) {
+
+        loginService.logout(accessTokenHeader);
+
+        return BaseResponse.onSuccess(SuccessStatus.SUCCESS_LOGOUT, "로그아웃 완료");
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/withdraw")
+    @Operation(
+            summary = "회원 탈퇴",
+            description = "accessToken을 기반으로 DB에서 유저를 삭제하고 Redis에서 refreshToken도 제거합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "AUTH_204", description = "회원 탈퇴 성공"),
+            @ApiResponse(responseCode = "TOKEN_4002", description = "유효하지 않거나 잘못된 accessToken입니다."),
+            @ApiResponse(responseCode = "USER_4001", description = "유저가 존재하지 않습니다.")
+    })
+    public BaseResponse<String> deleteAccount(@RequestHeader("Authorization") String accessTokenHeader) {
+
+        loginService.deleteAccount(accessTokenHeader);
+
+        return BaseResponse.onSuccess(SuccessStatus.SUCCESS_WITHDRAW, "회원 탈퇴가 완료되었습니다.");
     }
 }

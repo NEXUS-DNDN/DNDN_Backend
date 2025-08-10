@@ -32,13 +32,14 @@ public class LoginServiceImpl implements LoginService {
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult kakaoLogin(String code) {
-        // 1. 카카오 accessToken 발급
+
+        // 카카오 accessToken 발급
         AuthResponseDTO.KakaoToken token = kakaoOAuthClient.requestToken(code);
 
-        // 2. accessToken으로 사용자 정보 요청
+        // accessToken으로 사용자 정보 요청
         AuthResponseDTO.KakaoUserInfo userInfo = kakaoOAuthClient.requestUserInfo(token.getAccessToken());
 
-        // 3. 유저 존재 여부 확인
+        // 유저 존재 여부 확인
         User user = userRepository.save(
                 User.builder()
                         .socialId(String.valueOf(userInfo.getId()))
@@ -55,7 +56,7 @@ public class LoginServiceImpl implements LoginService {
 
         boolean isNewUser = !userRepository.existsBySocialId(String.valueOf(userInfo.getId()));
 
-        // 4. JWT 토큰 발급
+        // JWT 토큰 발급
         String jwtAccessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
         String jwtRefreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
         // Redis에 refreshToken 저장
@@ -66,7 +67,7 @@ public class LoginServiceImpl implements LoginService {
                 TimeUnit.MILLISECONDS
         );
 
-        // 5. 최종 응답 (카카오 access/refresh 토큰도 포함해서 반환)
+        // 최종 응답 (카카오 access/refresh 토큰도 포함해서 반환)
         return LoginConverter.toKAKAOWebLoginResponse(jwtAccessToken, jwtRefreshToken, isNewUser, token);
     }
 
@@ -74,15 +75,16 @@ public class LoginServiceImpl implements LoginService {
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult kakaoLoginWithAccessToken(String kakaoAccessToken) {
-        // 1. accessToken으로 사용자 정보 요청
+
+        // accessToken으로 사용자 정보 요청
         AuthResponseDTO.KakaoUserInfo userInfo = kakaoOAuthClient.requestUserInfo(kakaoAccessToken);
         String socialId = String.valueOf(userInfo.getId());
 
-        // 2. 유저 존재 여부 먼저 판단
+        // 유저 존재 여부 먼저 판단
         Optional<User> existingUser = userRepository.findBySocialId(socialId);
         boolean isNewUser = existingUser.isEmpty();
 
-        // 3. 없으면 새로 저장
+        // 없으면 새로 저장
         User user = existingUser.orElseGet(() -> userRepository.save(
                 User.builder()
                         .socialId(socialId)
@@ -97,11 +99,11 @@ public class LoginServiceImpl implements LoginService {
                         .build()
         ));
 
-        // 5. JWT 토큰 발급
+        // JWT 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
         String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
-        // 6. Redis 저장
+        // Redis 저장
         redisTemplate.opsForValue().set(
                 "refresh:userId:" + user.getId(),
                 refreshToken,
@@ -109,7 +111,7 @@ public class LoginServiceImpl implements LoginService {
                 TimeUnit.MILLISECONDS
         );
 
-        // 7. 응답 반환
+        // 응답 반환
         return LoginConverter.toKAKAOLoginResponse(accessToken, refreshToken, kakaoAccessToken, isNewUser);
     }
 
@@ -118,18 +120,18 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public AuthResponseDTO.LoginResult naverLogin(String code) {
 
-        // 1. 네이버 access token 발급
+        // 네이버 access token 발급
         AuthResponseDTO.NaverToken token = naverOAuthClient.requestToken(code);
 
-        // 2. 사용자 정보 요청
+        // 사용자 정보 요청
         AuthResponseDTO.NaverUserInfo userInfo = naverOAuthClient.requestUserInfo(token.getAccessToken());
 
-        // 3. 유저 존재 여부 확인
+        // 유저 존재 여부 확인
         String socialId = String.valueOf(userInfo.getId());
         Optional<User> existingUser = userRepository.findBySocialId(socialId);
         boolean isNewUser = existingUser.isEmpty();
 
-        // 4. 없으면 새로 저장
+        // 없으면 새로 저장
         User user = existingUser.orElseGet(() -> userRepository.save(
                 User.builder()
                         .socialId(socialId)
@@ -144,11 +146,11 @@ public class LoginServiceImpl implements LoginService {
                         .build()
         ));
 
-        // 5. JWT 토큰 발급
+        // JWT 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
         String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
-        // 6. Redis 저장
+        // Redis 저장
         redisTemplate.opsForValue().set(
                 "refresh:userId:" + user.getId(),
                 refreshToken,
@@ -156,7 +158,7 @@ public class LoginServiceImpl implements LoginService {
                 TimeUnit.MILLISECONDS
         );
 
-        // 7. 응답 반환
+        // 응답 반환
         return LoginConverter.toNAVERWebLoginResponse(accessToken, refreshToken, isNewUser, token);
     }
 
@@ -164,15 +166,16 @@ public class LoginServiceImpl implements LoginService {
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult naverLoginWithAccessToken(String naverAccessToken) {
-        // 1. access token으로 네이버 사용자 정보 요청
+
+        // access token으로 네이버 사용자 정보 요청
         AuthResponseDTO.NaverUserInfo userInfo = naverOAuthClient.requestUserInfo(naverAccessToken);
         String socialId = String.valueOf(userInfo.getId());
 
-        // 2. 유저 존재 여부 판단
+        // 유저 존재 여부 판단
         Optional<User> existingUser = userRepository.findBySocialId(socialId);
         boolean isNewUser = existingUser.isEmpty();
 
-        // 3. 없으면 새로 저장
+        // 없으면 새로 저장
         User user = existingUser.orElseGet(() -> userRepository.save(
                 User.builder()
                         .socialId(socialId)
@@ -187,11 +190,11 @@ public class LoginServiceImpl implements LoginService {
                         .build()
         ));
 
-        // 4. JWT 토큰 발급
+        // JWT 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
         String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
-        // 5. Redis에 refresh token 저장
+        // Redis에 refresh token 저장
         redisTemplate.opsForValue().set(
                 "refresh:userId:" + user.getId(),
                 refreshToken,
@@ -199,26 +202,26 @@ public class LoginServiceImpl implements LoginService {
                 TimeUnit.MILLISECONDS
         );
 
-        // 6. 응답 반환
+        // 응답 반환
         return LoginConverter.toNAVERLoginResponse(accessToken, refreshToken, naverAccessToken, isNewUser);
     }
 
-    // ✅ 구글 웹 로그인
+    // 구글 웹 로그인
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult googleLogin(String code) {
-        // 1. 구글 access token 발급
+        // 구글 access token 발급
         AuthResponseDTO.GoogleToken token = googleOAuthClient.requestToken(code);
 
-        // 2. 사용자 정보 요청
+        // 사용자 정보 요청
         AuthResponseDTO.GoogleUserInfo userInfo = googleOAuthClient.requestUserInfo(token.getAccessToken());
 
-        // 3. 유저 존재 여부 확인
+        // 유저 존재 여부 확인
         String socialId = String.valueOf(userInfo.getId());
         Optional<User> existingUser = userRepository.findBySocialId(socialId);
         boolean isNewUser = existingUser.isEmpty();
 
-        // 4. 없으면 새로 저장
+        // 없으면 새로 저장
         User user = existingUser.orElseGet(() -> userRepository.save(
                 User.builder()
                         .socialId(socialId)
@@ -233,11 +236,11 @@ public class LoginServiceImpl implements LoginService {
                         .build()
         ));
 
-        // 5. JWT 토큰 발급
+        // JWT 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
         String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
-        // 6. Redis 저장
+        // Redis 저장
         redisTemplate.opsForValue().set(
                 "refresh:userId:" + user.getId(),
                 refreshToken,
@@ -245,23 +248,24 @@ public class LoginServiceImpl implements LoginService {
                 TimeUnit.MILLISECONDS
         );
 
-        // 7. 응답 반환
+        // 응답 반환
         return LoginConverter.toGOOGLEWebLoginResponse(accessToken, refreshToken, isNewUser, token);
     }
 
-    // ✅ 구글 앱 로그인
+    // 구글 앱 로그인
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult googleLoginWithAccessToken(String googleAccessToken) {
-        // 1. access token으로 구글 사용자 정보 요청
+
+        // access token으로 구글 사용자 정보 요청
         AuthResponseDTO.GoogleUserInfo userInfo = googleOAuthClient.requestUserInfo(googleAccessToken);
         String socialId = String.valueOf(userInfo.getId());
 
-        // 2. 유저 존재 여부 판단
+        // 유저 존재 여부 판단
         Optional<User> existingUser = userRepository.findBySocialId(socialId);
         boolean isNewUser = existingUser.isEmpty();
 
-        // 3. 없으면 새로 저장
+        // 없으면 새로 저장
         User user = existingUser.orElseGet(() -> userRepository.save(
                 User.builder()
                         .socialId(socialId)
@@ -276,11 +280,11 @@ public class LoginServiceImpl implements LoginService {
                         .build()
         ));
 
-        // 4. JWT 토큰 발급
+        // JWT 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
         String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
-        // 5. Redis에 refresh token 저장
+        // Redis에 refresh token 저장
         redisTemplate.opsForValue().set(
                 "refresh:userId:" + user.getId(),
                 refreshToken,
@@ -288,12 +292,13 @@ public class LoginServiceImpl implements LoginService {
                 TimeUnit.MILLISECONDS
         );
 
-        // 6. 응답 반환
+        // 응답 반환
         return LoginConverter.toGOOGLELoginResponse(accessToken, refreshToken, googleAccessToken, isNewUser);
     }
 
 
     // 토큰 재발급
+    @Transactional
     @Override
     public AuthResponseDTO.LoginResult refreshToken(Long userId, String refreshToken) {
         String redisKey = "refresh:userId:" + userId;
@@ -311,5 +316,80 @@ public class LoginServiceImpl implements LoginService {
         redisTemplate.opsForValue().set(redisKey, newRefreshToken, jwtUtil.getRefreshTokenValidity(), TimeUnit.MILLISECONDS);
 
         return LoginConverter.toRefreshTokenResponse(newAccessToken, newRefreshToken);
+    }
+
+    // 자동 로그인
+    @Transactional(readOnly = true)
+    @Override
+    public AuthResponseDTO.AutoLoginResult autoLogin(String accessTokenHeader) {
+
+        String accessToken = accessTokenHeader.replace("Bearer ", "");
+        String userIdStr;
+
+        try {
+            userIdStr = jwtUtil.validateAndGetUserId(accessToken);
+        } catch (Exception e) {
+            throw new UserException(ErrorStatus.INVALID_ACCESS_TOKEN);
+        }
+
+        Long userId = Long.parseLong(userIdStr);
+        boolean exists = userRepository.existsById(userId);
+
+        if (!exists) {
+            throw new UserException(ErrorStatus._USER_NOT_FOUND);
+        }
+
+        return LoginConverter.toAutoLoginResponse(userId, true);
+    }
+
+    // 로그 아웃
+    @Transactional
+    @Override
+    public void logout(String accessTokenHeader) {
+
+        String accessToken = accessTokenHeader.replace("Bearer ", "");
+        String userIdStr;
+        try {
+            userIdStr = jwtUtil.validateAndGetUserId(accessToken); // 유효성 + ID 추출
+        } catch (Exception e) {
+            throw new UserException(ErrorStatus.INVALID_ACCESS_TOKEN);
+        }
+
+        Long userId = Long.parseLong(userIdStr);
+        boolean exists = userRepository.existsById(userId);
+        if (!exists) {
+            throw new UserException(ErrorStatus._USER_NOT_FOUND);
+        }
+
+        String redisKey = "refresh:userId:" + userId;
+        redisTemplate.delete(redisKey);
+    }
+
+    // 회원 탈퇴
+    @Transactional
+    @Override
+    public void deleteAccount(String accessTokenHeader) {
+
+        String accessToken = accessTokenHeader.replace("Bearer ", "");
+
+        String userIdStr;
+        try {
+            userIdStr = jwtUtil.validateAndGetUserId(accessToken);
+        } catch (Exception e) {
+            throw new UserException(ErrorStatus.INVALID_ACCESS_TOKEN);
+        }
+
+        Long userId = Long.parseLong(userIdStr);
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isEmpty()) {
+            throw new UserException(ErrorStatus._USER_NOT_FOUND);
+        }
+
+        // 유저 DB 삭제
+        userRepository.deleteById(userId);
+
+        // refreshToken 삭제
+        redisTemplate.delete("refresh:userId:" + userId);
     }
 }

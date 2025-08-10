@@ -20,12 +20,12 @@ public record WelfareDetailResDto(
         List<String> householdTypeNames,
         List<String> interestTopicNames,
         String servLink,
+        String ctpvNm,
+        String sggNm,
         String eligibleUser,
         String submitDocument,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        RequestStatus requestStatus,
-        ReceiveStatus receiveStatus,
         SourceType sourceType
 ) {
     public static WelfareDetailResDto of(Welfare welfare) {
@@ -44,12 +44,12 @@ public record WelfareDetailResDto(
                         .map(it -> it.getKor())
                         .collect(Collectors.toList()))
                 .servLink(welfare.getServLink())
+                .ctpvNm(welfare.getCtpvNm())
+                .sggNm(welfare.getSggNm())
                 .eligibleUser(welfare.getEligibleUser())
                 .submitDocument(welfare.getSubmitDocument())
                 .startDate(welfare.getStartDate())
                 .endDate(welfare.getEndDate())
-                .requestStatus(welfare.getRequestStatus())
-                .receiveStatus(welfare.getReceiveStatus())
                 .sourceType(welfare.getSourceType())
                 .build();
     }

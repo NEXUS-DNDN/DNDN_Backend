@@ -33,7 +33,6 @@ public class CentralWelfareClient {
         return UriUtils.encodeQueryParam(k, StandardCharsets.UTF_8);
     }
 
-
     public CentralListResDto getWelfareList(int page, int numOfRows) {
         String url = UriComponentsBuilder.newInstance()
                 .scheme("https")
@@ -110,7 +109,5 @@ public class CentralWelfareClient {
         log.info("Raw XML:\n{}", res.getBody());
         return res.getBody();
     }
-
-
 
 }

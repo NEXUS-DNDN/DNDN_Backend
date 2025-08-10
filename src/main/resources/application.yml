@@ -69,4 +69,8 @@ openapi:
   central:
     base-url: apis.data.go.kr
     service-key: ${OPENAPI_CENTRAL_SERVICE_KEY}
+  local:
+    base-url: apis.data.go.kr
+    service-key: ${OPENAPI_LOCAL_SERVICE_KEY}
+
 

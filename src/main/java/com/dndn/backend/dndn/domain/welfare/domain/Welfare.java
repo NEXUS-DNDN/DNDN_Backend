@@ -2,8 +2,6 @@ package com.dndn.backend.dndn.domain.welfare.domain;
 
 import com.dndn.backend.dndn.domain.category.domain.Category;
 import com.dndn.backend.dndn.domain.model.entity.BaseEntity;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.ReceiveStatus;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.RequestStatus;
 import com.dndn.backend.dndn.domain.welfare.domain.enums.SourceType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -35,8 +33,17 @@ public class Welfare extends BaseEntity {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    // 상세 링크
     @Column(name = "service_link", length = 1000)
     private String servLink;
+
+    // 시도명
+    @Column(name = "ctpv_nm", length = 50, nullable = true)
+    private String ctpvNm;
+
+    // 시군구명
+    @Column(name = "sgg_nm", length = 50, nullable = true)
+    private String sggNm;
 
     // 대상자 설명
     @Column(name = "eligible_user", length = 1000, nullable = false)
@@ -54,16 +61,6 @@ public class Welfare extends BaseEntity {
     @Column(name = "end_date", nullable = true)
     private LocalDateTime endDate;
 
-    // 신청 상태
-    @Enumerated(EnumType.STRING)
-    @Column(name = "request_status", nullable = false, length = 20)
-    private RequestStatus requestStatus;
-
-    // 수령 상태
-    @Enumerated(EnumType.STRING)
-    @Column(name = "receive_status", nullable = false, length = 20)
-    private ReceiveStatus receiveStatus;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnore
@@ -74,27 +71,33 @@ public class Welfare extends BaseEntity {
     private SourceType sourceType;
 
     @Builder
-    private Welfare(String servId, String title, String content, String servLink, String imageUrl, String eligibleUser,
+    private Welfare(String servId, String title, String content, String servLink,
+                    String ctpvNm, String sggNm,
+                    String imageUrl, String eligibleUser,
                     String submitDocument, LocalDateTime startDate, LocalDateTime endDate,
-                    RequestStatus requestStatus, ReceiveStatus receiveStatus,
                     SourceType sourceType, Category category) {
         this.servId = servId;
         this.title = title;
         this.content = content;
         this.servLink = servLink;
+        this.ctpvNm = ctpvNm;
+        this.sggNm = sggNm;
         this.imageUrl = imageUrl;
         this.eligibleUser = eligibleUser;
         this.submitDocument = submitDocument;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.requestStatus = requestStatus;
-        this.receiveStatus = receiveStatus;
         this.sourceType = sourceType;
         this.category = category;
     }
 
     public void updateCategory(Category category) {
         this.category = category;
+    }
+
+    public void updateRegion(String ctpvNm, String sggNm) {
+        this.ctpvNm = ctpvNm;
+        this.sggNm = sggNm;
     }
 
     public void update(String content, String servLink, String eligibleUser, String submitDocument) {
@@ -104,5 +107,9 @@ public class Welfare extends BaseEntity {
         this.submitDocument = submitDocument;
     }
 
+    public void updatePeriod(LocalDateTime start, LocalDateTime end) {
+        this.startDate = start;
+        this.endDate = end;
+    }
 
 }

@@ -1,56 +1,34 @@
 package com.dndn.backend.dndn.domain.welfare.application;
 
+import com.dndn.backend.dndn.domain.category.application.CategoryService;
 import com.dndn.backend.dndn.domain.category.domain.Category;
 import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
 import com.dndn.backend.dndn.domain.category.domain.enums.InterestTopic;
 import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import com.dndn.backend.dndn.domain.welfare.domain.Welfare;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.ReceiveStatus;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.RequestStatus;
 import com.dndn.backend.dndn.domain.welfare.domain.enums.SourceType;
-import com.dndn.backend.dndn.domain.category.domain.repository.CategoryRepository;
 import com.dndn.backend.dndn.domain.welfare.domain.repository.WelfareRepository;
 import com.dndn.backend.dndn.domain.welfareOpenApi.central.client.CentralWelfareClient;
 import com.dndn.backend.dndn.domain.welfareOpenApi.central.dto.response.CentralDetailResDto;
 import com.dndn.backend.dndn.domain.welfareOpenApi.central.dto.response.CentralListResDto;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.dndn.backend.dndn.domain.category.util.CategoryParserUtils.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class WelfareSyncService {
+public class CentralWelfareSyncService {
 
     private final WelfareRepository welfareRepository;
-    private final CategoryRepository categoryRepository;
     private final CentralWelfareClient centralClient;
-
-    @PostConstruct
-    public void initSync() {
-        String rawXml = centralClient.debugWelfareListXml(1, 10); // 한 페이지만 테스트
-        log.info("[Raw XML 출력]\n{}", rawXml);
-    }
+    private final CategoryService categoryService;
 
 
-    /*@PostConstruct
-    public void initSync() {
-        try {
-            log.info("[복지 동기화] 최초 1회 중앙부처 복지 동기화 시작");
-            syncCentralWelfareData();
-        } catch (Exception e) {
-            log.error("복지 동기화 실패", e);
-        }
-    }*/
-
-    @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul") // 매일 새벽 3시
     public void syncCentralWelfareData() {
         int page = 1;
         int numOfRows = 100;
@@ -89,15 +67,7 @@ public class WelfareSyncService {
                 List<HouseholdType> householdTypes = parseHouseholdTypes(wantedDtl.getTrgterIndvdlArray());
                 List<InterestTopic> interestTopics = parseInterestTopics(wantedDtl.getIntrsThemaArray());
 
-                Category category = findMatchingCategory(lifeCycles, householdTypes, interestTopics)
-                        .orElseGet(() -> {
-                            Category newCategory = Category.builder()
-                                    .lifeCycles(lifeCycles)
-                                    .householdTypes(householdTypes)
-                                    .interestTopics(interestTopics)
-                                    .build();
-                            return categoryRepository.save(newCategory);
-                        });
+                Category category = categoryService.findOrCreateCategory(lifeCycles, householdTypes, interestTopics);
 
                 Welfare welfare = welfareRepository.findByServId(servId).orElse(null);
 
@@ -107,13 +77,13 @@ public class WelfareSyncService {
                             .title(wantedDtl.getServNm())
                             .content(wantedDtl.getWlfareInfoOutlCn())
                             .servLink(item.getServDtlLink())
+                            .ctpvNm("지역정보없음")
+                            .sggNm("지역정보없음")
                             .imageUrl(null)
                             .eligibleUser(wantedDtl.getTgtrDtlCn())
                             .submitDocument(wantedDtl.getAlwServCn())
                             .startDate(null)
                             .endDate(null)
-                            .requestStatus(RequestStatus.NOT_REQUESTED)
-                            .receiveStatus(ReceiveStatus.NOT_RECEIVED)
                             .sourceType(SourceType.CENTRAL)
                             .category(category)
                             .build();
@@ -136,8 +106,14 @@ public class WelfareSyncService {
                     }
 
                     // ✅ 카테고리가 변경되었을 수도 있음
-                    if (!welfare.getCategory().equals(category)) {
+                    if (!welfare.getCategory().getId().equals(category.getId())) {
                         welfare.updateCategory(category);
+                        isUpdated = true;
+                    }
+
+                    // ✅ 지역정보가 비어있으면 기본값 세팅
+                    if (welfare.getCtpvNm() == null || welfare.getSggNm() == null) {
+                        welfare.updateRegion("지역정보없음", "지역정보없음");
                         isUpdated = true;
                     }
 
@@ -153,16 +129,4 @@ public class WelfareSyncService {
 
         log.info("[복지 동기화] 중앙부처 전체 동기화 완료");
     }
-
-    // 🔧 카테고리 비교 로직
-    private Optional<Category> findMatchingCategory(List<LifeCycle> lifeCycles,
-                                                    List<HouseholdType> householdTypes,
-                                                    List<InterestTopic> interestTopics) {
-        return categoryRepository.findAll().stream()
-                .filter(c -> c.getLifeCycles().equals(lifeCycles)
-                        && c.getHouseholdTypes().equals(householdTypes)
-                        && c.getInterestTopics().equals(interestTopics))
-                .findFirst();
-    }
 }
-

@@ -24,4 +24,13 @@ public interface LoginService {
 
     // 토큰 재발급
     AuthResponseDTO.LoginResult refreshToken(Long userId, String refreshToken);
+
+    // 자동 로그인
+    AuthResponseDTO.AutoLoginResult autoLogin(String accessToken);
+
+    // 로그 아웃
+    void logout(String accessTokenHeader);
+
+    // 회원 탈퇴
+    void deleteAccount(String accessToken);
 }

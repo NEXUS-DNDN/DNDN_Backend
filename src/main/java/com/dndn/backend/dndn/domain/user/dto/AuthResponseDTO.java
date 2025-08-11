@@ -173,8 +173,6 @@ public class AuthResponseDTO {
         }
     }
 
-
-
     // 최종 로그인 응답 DTO
     @Builder
     @Getter
@@ -186,5 +184,15 @@ public class AuthResponseDTO {
         private boolean isNewUser;
         private String sosialAccessToken;
         private String sosialRefreshToken;
+    }
+
+    // 자동 로그인
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AutoLoginResult {
+        private boolean valid;
+        private Long userId;
     }
 }

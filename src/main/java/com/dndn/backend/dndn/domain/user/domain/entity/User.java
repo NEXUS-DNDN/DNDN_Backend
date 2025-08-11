@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @DynamicInsert
 @DynamicUpdate
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class User extends BaseEntity {
 

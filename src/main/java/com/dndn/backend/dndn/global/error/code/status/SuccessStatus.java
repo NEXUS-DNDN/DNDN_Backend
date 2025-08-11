@@ -13,7 +13,9 @@ public enum SuccessStatus implements BaseCode{
     OK(HttpStatus.OK, "COMMON_200", "성공입니다."),
 
     // Login
-    SUCCESS_LOGIN(HttpStatus.OK, "AUTH_200", "소셜 로그인이 완료되었습니다."),
+    SUCCESS_LOGIN(HttpStatus.OK, "AUTH_200", "소셜 로그인이 완료 되었습니다."),
+    SUCCESS_LOGOUT(HttpStatus.OK, "AUTH_200", "로그 아웃이 완료 되었습니다."),
+    SUCCESS_WITHDRAW(HttpStatus.NO_CONTENT, "AUTH_204", "회원 탈퇴가 완료 되었습니다."),
     SUCCESS_TOKEN_REFRESH(HttpStatus.OK, "TOKEN_200", "토큰 재발급 성공");
 
     private final HttpStatus httpStatus;

@@ -72,7 +72,7 @@ public class UserService {
 
         Senior info = Senior.builder()
                 .livingWithChildren(dto.isLivingWithChildren())
-                .houseHolder(dto.isHouseHolder())
+                .isReceivingBasicPension(dto.isReceivingBasicPension())
                 .build();
 
         user.setSeniorInfo(info); // 연관관계 메서드
@@ -91,6 +91,7 @@ public class UserService {
         Disabled info = Disabled.builder()
                 .disabillityGrade(dto.getDisabillityGrade())
                 .disabilityType(dto.getDisabilityType())
+                .registeredDisabled(dto.isRegisteredDisabled())
                 .build();
 
         user.setDisabledInfo(info); // 연관관계 메서드

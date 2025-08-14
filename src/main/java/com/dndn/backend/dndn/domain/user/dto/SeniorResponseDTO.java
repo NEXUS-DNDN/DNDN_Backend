@@ -15,7 +15,7 @@ public class SeniorResponseDTO {
     public static SeniorResponseDTO from(Senior senior) {
         return SeniorResponseDTO.builder()
                 .livingWithChildren(senior.isLivingWithChildren())
-                .houseHolder(senior.isHouseHolder())
+                .houseHolder(senior.isReceivingBasicPension())
                 .build();
     }
 }

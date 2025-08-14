@@ -28,6 +28,8 @@ public class Disabled {
     @Enumerated(EnumType.STRING)
     private DisabilityType disabilityType;
 
+    private boolean registeredDisabled;
+
     public void registerUser(User user) {
         this.user = user;
     }

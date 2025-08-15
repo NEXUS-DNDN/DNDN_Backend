@@ -15,15 +15,16 @@ public interface InterestRepository extends JpaRepository<Interest, Long> {
     // 유저-복지 조합 단건 조회
     Optional<Interest> findByUserIdAndWelfareId(Long userId, Long welfareId);
 
-    // 관심 ON 목록 조회
+    // 선택 파라미터(status가 null이면 전체)
     @Query("""
        select distinct i
        from Interest i
        join fetch i.welfare w
        where i.user.id = :userId
-         and i.interestStatus = true
+         and (:status is null or i.interestStatus = :status)
        """)
-    List<Interest> findByUserIdAndInterestStatusTrue(@Param("userId") Long userId);
+    List<Interest> findWithOptionalStatus(@Param("userId") Long userId,
+                                          @Param("status") Boolean status);
 
     // 상태만 변경
     @Modifying(clearAutomatically = true, flushAutomatically = true)

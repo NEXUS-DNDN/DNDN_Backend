@@ -8,5 +8,5 @@ public interface InterestService {
     InterestInfoResDto updateInterest(Long userId, Long welfareId, boolean interestStatus);
 
     // 관심 목록 조회(ON만)
-    InterestListResDto getInterest(Long userId);
+    InterestListResDto getInterest(Long userId, Boolean interestStatus);
 }

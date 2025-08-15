@@ -27,10 +27,25 @@ public class InterestController {
 
     // 사용자 관심 목록 조회
     @GetMapping
-    public ResponseEntity<InterestListResDto> interestsFind(
-            @AuthenticationPrincipal(expression = "id") Long userId
+    public ResponseEntity<InterestListResDto> getInterests(
+            @AuthenticationPrincipal(expression = "id") Long userId,
+            @RequestParam(value = "interestStatus", required = false) String statusParam
     ) {
-        InterestListResDto res = interestService.getInterest(userId);
-        return ResponseEntity.ok(res);
+        Boolean status = parseStatus(statusParam);
+        // 파라미터가 없었다면 기본 true로
+        if (statusParam == null) status = Boolean.TRUE;
+        return ResponseEntity.ok(interestService.getInterest(userId, status));
+    }
+
+
+    private Boolean parseStatus(String raw) {
+        if (raw == null) return null;
+        String v = raw.trim().toLowerCase();
+        return switch (v) {
+            case "true" -> Boolean.TRUE;
+            case "false" -> Boolean.FALSE;
+            case "all", "" -> null; // 전체
+            default -> throw new IllegalArgumentException("interestStatus는 [true,false,all] 값 중 하나여야 합니다.");
+        };
     }
 }

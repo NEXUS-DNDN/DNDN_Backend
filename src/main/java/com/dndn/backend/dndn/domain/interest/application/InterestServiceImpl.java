@@ -60,8 +60,8 @@ public class InterestServiceImpl implements InterestService {
 
     @Override
     @Transactional(readOnly = true)
-    public InterestListResDto getInterest(Long userId) {
-        List<Interest> interestList = interestRepository.findByUserIdAndInterestStatusTrue(userId);
+    public InterestListResDto getInterest(Long userId, Boolean interestStatus) {
+        List<Interest> interestList = interestRepository.findWithOptionalStatus(userId, interestStatus);
         return InterestListResDto.from(
                 interestList.stream()
                         .map(InterestInfoResDto::from)

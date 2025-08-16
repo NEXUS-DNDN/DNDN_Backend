@@ -61,6 +61,14 @@ public class Welfare extends BaseEntity {
     @Column(name = "end_date", nullable = true)
     private LocalDateTime endDate;
 
+    // 담당부처
+    @Column(name = "department", length = 200, nullable = true)
+    private String department;
+
+    // 담당기관(조직)
+    @Column(name = "org", length = 200, nullable = true)
+    private String org;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnore
@@ -75,6 +83,7 @@ public class Welfare extends BaseEntity {
                     String ctpvNm, String sggNm,
                     String imageUrl, String eligibleUser,
                     String submitDocument, LocalDateTime startDate, LocalDateTime endDate,
+                    String department, String org,
                     SourceType sourceType, Category category) {
         this.servId = servId;
         this.title = title;
@@ -87,6 +96,8 @@ public class Welfare extends BaseEntity {
         this.submitDocument = submitDocument;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.department = department;
+        this.org = org;
         this.sourceType = sourceType;
         this.category = category;
     }

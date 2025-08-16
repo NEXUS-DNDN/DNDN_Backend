@@ -1,7 +1,5 @@
 package com.dndn.backend.dndn.domain.welfare.api.response;
 
-import com.dndn.backend.dndn.domain.welfare.domain.enums.RequestStatus;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.ReceiveStatus;
 import com.dndn.backend.dndn.domain.welfare.domain.enums.SourceType;
 import com.dndn.backend.dndn.domain.welfare.domain.Welfare;
 import lombok.Builder;

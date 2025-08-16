@@ -27,6 +27,9 @@ public class Welfare extends BaseEntity {
     @Column(length = 100, nullable = false)
     private String title;
 
+    @Column(length = 1000, nullable = false)
+    private String summary;
+
     @Column(length = 4000, nullable = false)
     private String content;
 
@@ -49,9 +52,9 @@ public class Welfare extends BaseEntity {
     @Column(name = "eligible_user", length = 1000, nullable = false)
     private String eligibleUser;
 
-    // 제출 서류
-    @Column(name = "submit_document", length = 1000, nullable = false)
-    private String submitDocument;
+    // 상세 정보
+    @Column(name = "detail_info", length = 1000)
+    private String detailInfo;
 
     // 신청 시작일
     @Column(name = "start_date", nullable = true)
@@ -79,21 +82,22 @@ public class Welfare extends BaseEntity {
     private SourceType sourceType;
 
     @Builder
-    private Welfare(String servId, String title, String content, String servLink,
+    private Welfare(String servId, String title, String summary , String content, String servLink,
                     String ctpvNm, String sggNm,
                     String imageUrl, String eligibleUser,
-                    String submitDocument, LocalDateTime startDate, LocalDateTime endDate,
+                    String detailInfo, LocalDateTime startDate, LocalDateTime endDate,
                     String department, String org,
                     SourceType sourceType, Category category) {
         this.servId = servId;
         this.title = title;
+        this.summary = summary;
         this.content = content;
         this.servLink = servLink;
+        this.detailInfo = detailInfo;
         this.ctpvNm = ctpvNm;
         this.sggNm = sggNm;
         this.imageUrl = imageUrl;
         this.eligibleUser = eligibleUser;
-        this.submitDocument = submitDocument;
         this.startDate = startDate;
         this.endDate = endDate;
         this.department = department;
@@ -111,11 +115,16 @@ public class Welfare extends BaseEntity {
         this.sggNm = sggNm;
     }
 
-    public void update(String content, String servLink, String eligibleUser, String submitDocument) {
+    public void update(String summary, String content, String servLink,
+                       String department, String org,
+                       String eligibleUser, String detailInfo) {
+        this.summary = summary;
         this.content = content;
         this.servLink = servLink;
+        this.department = department;
+        this.org = org;
         this.eligibleUser = eligibleUser;
-        this.submitDocument = submitDocument;
+        this.detailInfo = detailInfo;
     }
 
     public void updatePeriod(LocalDateTime start, LocalDateTime end) {

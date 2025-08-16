@@ -14,8 +14,11 @@ import com.dndn.backend.dndn.domain.welfareOpenApi.central.dto.response.CentralL
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.dndn.backend.dndn.domain.category.util.CategoryParserUtils.*;
 
@@ -29,6 +32,7 @@ public class CentralWelfareSyncService {
     private final CategoryService categoryService;
 
 
+    @Transactional
     public void syncCentralWelfareData() {
         int page = 1;
         int numOfRows = 100;
@@ -71,17 +75,47 @@ public class CentralWelfareSyncService {
 
                 Welfare welfare = welfareRepository.findByServId(servId).orElse(null);
 
+                String detailInfo = Optional.ofNullable(wantedDtl.getBasfrmList())
+                        .flatMap(list -> list.stream()
+                                .map(CentralDetailResDto.ServDetail::getServSeDetailLink)
+                                .filter(Objects::nonNull)
+                                .map(String::trim)
+                                .filter(s -> !s.isEmpty())
+                                .findFirst())
+                        .orElse(null);
+
+                String servLink = Optional.ofNullable(wantedDtl.getInqplHmpgReldList())
+                        .flatMap(list -> list.stream()
+                                .map(CentralDetailResDto.ServDetail::getServSeDetailLink)
+                                .filter(Objects::nonNull)
+                                .map(String::trim)
+                                .filter(s -> !s.isEmpty())
+                                .findFirst())
+                        .orElse(null);
+
+                String org = Optional.ofNullable(wantedDtl.getInqplCtadrList())
+                        .flatMap(list -> list.stream()
+                                .map(CentralDetailResDto.ServDetail::getServSeDetailNm)
+                                .filter(Objects::nonNull)
+                                .map(String::trim)
+                                .filter(s -> !s.isEmpty())
+                                .findFirst())
+                        .orElseGet(wantedDtl::getRprsCtadr);
+
                 if (welfare == null) {
                     Welfare newWelfare = Welfare.builder()
                             .servId(servId)
                             .title(wantedDtl.getServNm())
-                            .content(wantedDtl.getWlfareInfoOutlCn())
-                            .servLink(item.getServDtlLink())
+                            .summary(wantedDtl.getWlfareInfoOutlCn())
+                            .content(wantedDtl.getAlwServCn())
+                            .servLink(servLink)
                             .ctpvNm("지역정보없음")
                             .sggNm("지역정보없음")
+                            .department(wantedDtl.getJurMnofNm())
+                            .org(org)
                             .imageUrl(null)
                             .eligibleUser(wantedDtl.getTgtrDtlCn())
-                            .submitDocument(wantedDtl.getAlwServCn())
+                            .detailInfo(detailInfo)
                             .startDate(null)
                             .endDate(null)
                             .sourceType(SourceType.CENTRAL)
@@ -89,35 +123,48 @@ public class CentralWelfareSyncService {
                             .build();
                     welfareRepository.save(newWelfare);
                 } else {
-                    boolean isUpdated = false;
+                    String newSummary      = wantedDtl.getWlfareInfoOutlCn();
+                    String newContent      = wantedDtl.getAlwServCn();
+                    String newServLink     = servLink;
+                    String newDetailInfo   = detailInfo;
+                    String newDepartment   = wantedDtl.getJurMnofNm();
+                    String newEligibleUser = wantedDtl.getTgtrDtlCn();
+                    String newOrg = org;
 
-                    if (!welfare.getContent().equals(wantedDtl.getWlfareInfoOutlCn()) ||
-                            !welfare.getServLink().equals(item.getServDtlLink()) ||
-                            !welfare.getEligibleUser().equals(wantedDtl.getTgtrDtlCn()) ||
-                            !welfare.getSubmitDocument().equals(wantedDtl.getAlwServCn())) {
+                    boolean needsUpdate =
+                            !Objects.equals(welfare.getSummary(),      newSummary)      ||
+                                    !Objects.equals(welfare.getContent(),      newContent)      ||
+                                    !Objects.equals(welfare.getServLink(),     newServLink)     ||
+                                    !Objects.equals(welfare.getDepartment(),   newDepartment)   ||
+                                    !Objects.equals(welfare.getOrg(),          newOrg)          ||
+                                    !Objects.equals(welfare.getEligibleUser(), newEligibleUser) ||
+                                    !Objects.equals(welfare.getDetailInfo(),   newDetailInfo);
 
+                    if (needsUpdate) {
                         welfare.update(
-                                wantedDtl.getWlfareInfoOutlCn(),
-                                item.getServDtlLink(),
-                                wantedDtl.getTgtrDtlCn(),
-                                wantedDtl.getAlwServCn()
+                                newSummary,
+                                newContent,
+                                newServLink,
+                                newDepartment,
+                                newOrg,
+                                newEligibleUser,
+                                newDetailInfo
                         );
-                        isUpdated = true;
                     }
 
                     // ✅ 카테고리가 변경되었을 수도 있음
                     if (!welfare.getCategory().getId().equals(category.getId())) {
                         welfare.updateCategory(category);
-                        isUpdated = true;
+                        needsUpdate = true;
                     }
 
                     // ✅ 지역정보가 비어있으면 기본값 세팅
                     if (welfare.getCtpvNm() == null || welfare.getSggNm() == null) {
                         welfare.updateRegion("지역정보없음", "지역정보없음");
-                        isUpdated = true;
+                        needsUpdate = true;
                     }
 
-                    if (isUpdated) {
+                    if (needsUpdate) {
                         welfareRepository.save(welfare);
                     }
                 }

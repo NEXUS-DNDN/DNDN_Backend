@@ -17,12 +17,14 @@ public interface InterestRepository extends JpaRepository<Interest, Long> {
 
     // 선택 파라미터(status가 null이면 전체)
     @Query("""
-       select distinct i
-       from Interest i
-       join fetch i.welfare w
-       where i.user.id = :userId
-         and (:status is null or i.interestStatus = :status)
-       """)
+   select distinct i
+   from Interest i
+   join fetch i.welfare w
+   left join fetch w.category c
+   left join fetch c.interestTopics it
+   where i.user.id = :userId
+     and (:status is null or i.interestStatus = :status)
+   """)
     List<Interest> findWithOptionalStatus(@Param("userId") Long userId,
                                           @Param("status") Boolean status);
 

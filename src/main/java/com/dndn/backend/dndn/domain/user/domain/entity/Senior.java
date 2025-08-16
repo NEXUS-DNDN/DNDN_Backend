@@ -22,7 +22,7 @@ public class Senior {
 
     private boolean livingWithChildren;
 
-    private boolean houseHolder;
+    private boolean isReceivingBasicPension;
 
     public void registerUser(User user) {
         this.user = user;

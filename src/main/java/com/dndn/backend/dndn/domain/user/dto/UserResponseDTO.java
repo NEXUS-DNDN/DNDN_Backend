@@ -1,12 +1,15 @@
 package com.dndn.backend.dndn.domain.user.dto;
 
 
+import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
+import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import com.dndn.backend.dndn.domain.model.enums.*;
 import com.dndn.backend.dndn.domain.user.domain.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Builder
@@ -22,7 +25,8 @@ public class UserResponseDTO {
     private GenderType gender;
     private FamilyType family;
     private EmploymentType employment;
-    private AdditionalInformation additionalInformation;
+    private LifeCycle lifeCycle;
+    private Set<HouseholdType> householdTypes;
 
 
     public static UserResponseDTO from(User user) {
@@ -37,7 +41,8 @@ public class UserResponseDTO {
                 .gender(user.getGender())
                 .family(user.getFamily())
                 .employment(user.getEmployment())
-                .additionalInformation(user.getAdditionalInformation())
+                .lifeCycle(user.getLifeCycle())
+                .householdTypes(user.getHouseholdTypes())
                 .build();
     }
 

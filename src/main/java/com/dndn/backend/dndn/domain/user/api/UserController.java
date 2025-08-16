@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "사용자 등록", description = "사용자의 기본 정보를 등록합니다.")
-    public BaseResponse<UserResponseDTO> createUser(@RequestBody UserRequestDTO dto) {
+    public BaseResponse<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO dto) {
         return BaseResponse.onSuccess(
                 SuccessStatus.OK,
                 UserResponseDTO.from(userService.createUser(dto))

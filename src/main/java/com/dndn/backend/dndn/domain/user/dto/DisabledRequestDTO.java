@@ -9,4 +9,6 @@ public class DisabledRequestDTO {
     private int disabillityGrade;
 
     private DisabilityType disabilityType;
+
+    private boolean registeredDisabled;
 }

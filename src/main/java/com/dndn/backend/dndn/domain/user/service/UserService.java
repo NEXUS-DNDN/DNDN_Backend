@@ -1,6 +1,8 @@
 package com.dndn.backend.dndn.domain.user.service;
 
 
+import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
+import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import com.dndn.backend.dndn.domain.model.exception.UserException;
 import com.dndn.backend.dndn.domain.user.domain.entity.Disabled;
 import com.dndn.backend.dndn.domain.user.domain.entity.Senior;
@@ -17,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.dndn.backend.dndn.domain.model.enums.AdditionalInformation.DISABLED;
-import static com.dndn.backend.dndn.domain.model.enums.AdditionalInformation.SENIOR;
+import static com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle.SENIOR;
+
 
 @Service
 @Transactional
@@ -30,13 +32,6 @@ public class UserService {
 
     public User createUser(UserRequestDTO dto){
 
-        if (dto.getAdditionalInformation() == SENIOR && dto.getDisabledInfo() != null) {
-            throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
-        }
-
-        if (dto.getAdditionalInformation() == DISABLED && dto.getSeniorInfo() != null) {
-            throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
-        }
 
         User user = User.builder()
                 .name(dto.getName())
@@ -48,8 +43,10 @@ public class UserService {
                 .gender(dto.getGender())
                 .family(dto.getFamily())
                 .employment(dto.getEmployment())
-                .additionalInformation(dto.getAdditionalInformation())
+                .lifeCycle(dto.getLifeCycle())
                 .build();
+
+        user.getHouseholdTypes().addAll(dto.getHouseholdTypes());
 
         userRepository.save(user);
 
@@ -66,7 +63,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
-        if (user.getAdditionalInformation() != SENIOR) {
+        if (user.getLifeCycle() != SENIOR) {
             throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
         }
 
@@ -84,7 +81,10 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
-        if (user.getAdditionalInformation() != DISABLED) {
+        boolean isDisabled = user.getHouseholdTypes().stream()
+                .anyMatch(ht -> ht == HouseholdType.DISABLED);
+
+        if (!isDisabled) {
             throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
         }
 
@@ -104,7 +104,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
-        if (user.getAdditionalInformation() != SENIOR) {
+        if (user.getLifeCycle() != SENIOR) {
             throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
         }
 
@@ -115,7 +115,10 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
-        if (user.getAdditionalInformation() != DISABLED) {
+        boolean isDisabled = user.getHouseholdTypes().stream()
+                .anyMatch(ht -> ht == HouseholdType.DISABLED);
+
+        if (!isDisabled) {
             throw new UserException(ErrorStatus._INVALID_ADDITIONAL_INFO);
         }
 

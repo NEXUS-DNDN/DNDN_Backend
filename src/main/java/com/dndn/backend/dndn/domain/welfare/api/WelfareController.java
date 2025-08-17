@@ -1,10 +1,15 @@
 package com.dndn.backend.dndn.domain.welfare.api;
 
+import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
+import com.dndn.backend.dndn.domain.category.domain.enums.InterestTopic;
+import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareDetailResDto;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareListResDto;
 import com.dndn.backend.dndn.domain.welfare.application.WelfareService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/welfare")
@@ -29,6 +34,16 @@ public class WelfareController {
     @GetMapping("/search")
     public WelfareListResDto getWelfareByTitle(@RequestParam String title) {
         return welfareService.welfareFindByTitle(title);
+    }
+
+    // 카테고리 검색
+    @GetMapping("/category")
+    public WelfareListResDto getByCategory(
+            @RequestParam LifeCycle lifeCycle,
+            @RequestParam(required = false) List<HouseholdType> householdTypes,
+            @RequestParam(required = false) List<InterestTopic> interestTopics
+    ) {
+        return welfareService.welfareFindByCategory(lifeCycle, householdTypes, interestTopics);
     }
 }
 

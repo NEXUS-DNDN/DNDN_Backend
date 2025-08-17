@@ -1,5 +1,8 @@
 package com.dndn.backend.dndn.domain.welfare.application;
 
+import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
+import com.dndn.backend.dndn.domain.category.domain.enums.InterestTopic;
+import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareDetailResDto;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareListResDto;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareInfoResDto;
@@ -9,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -46,5 +50,29 @@ public class WelfareServiceImpl implements WelfareService {
                 .map(WelfareInfoResDto::from)
                 .toList();
         return WelfareListResDto.from(welfareInfoResDtoList);
+    }
+
+    @Override
+    public WelfareListResDto welfareFindByCategory(
+            LifeCycle lifeCycle,
+            List<HouseholdType> householdTypes,
+            List<InterestTopic> interestTopics
+    ) {
+        // null-safe 처리
+        List<HouseholdType> hh = (householdTypes == null) ? Collections.emptyList() : householdTypes;
+        List<InterestTopic> it = (interestTopics == null) ? Collections.emptyList() : interestTopics;
+
+        boolean householdsEmpty = hh.isEmpty();
+        boolean interestsEmpty  = it.isEmpty();
+
+        List<Welfare> result = welfareRepository.findByCategoryFilters(
+                lifeCycle, hh, householdsEmpty, it, interestsEmpty
+        );
+
+        List<WelfareInfoResDto> dtoList = result.stream()
+                .map(WelfareInfoResDto::from)
+                .toList();
+
+        return WelfareListResDto.from(dtoList);
     }
 }

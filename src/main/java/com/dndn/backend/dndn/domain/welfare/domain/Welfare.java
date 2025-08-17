@@ -56,6 +56,7 @@ public class Welfare extends BaseEntity {
     @Lob
     @Column(name = "submit_document", nullable = false, columnDefinition = "TEXT")
     private String submitDocument;
+
     // 상세 정보
     @Column(name = "detail_info", length = 1000)
     private String detailInfo;
@@ -76,6 +77,11 @@ public class Welfare extends BaseEntity {
     @Column(name = "org", length = 200, nullable = true)
     private String org;
 
+    // 요약 정보
+    @Column(name = "summary", length = 1000)
+    private String summary;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @JsonIgnore
@@ -88,7 +94,7 @@ public class Welfare extends BaseEntity {
     @Builder
     private Welfare(String servId, String title, String summary , String content, String servLink,
                     String ctpvNm, String sggNm,
-                    String imageUrl, String eligibleUser,
+                    String imageUrl, String eligibleUser, String submitDocument,
                     String detailInfo, LocalDateTime startDate, LocalDateTime endDate,
                     String department, String org,
                     SourceType sourceType, Category category) {
@@ -102,6 +108,7 @@ public class Welfare extends BaseEntity {
         this.sggNm = sggNm;
         this.imageUrl = imageUrl;
         this.eligibleUser = eligibleUser;
+        this.submitDocument = submitDocument;   // ✅ 추가
         this.startDate = startDate;
         this.endDate = endDate;
         this.department = department;

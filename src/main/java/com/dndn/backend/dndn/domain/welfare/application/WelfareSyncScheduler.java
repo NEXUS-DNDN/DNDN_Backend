@@ -30,7 +30,8 @@ public class WelfareSyncScheduler {
     public void runOnceAfterStartup() {
         log.info("[복지 동기화] 앱 기동 후 1회 실행 시작");
         try {
-            centralWelfareSyncService.syncCentralWelfareData();
+//            centralWelfareSyncService.syncCentralWelfareData();
+            localWelfareSyncService.syncLocalWelfareData();
         } catch (Exception e) {
             log.error("[복지 동기화] 실행 중 예외", e); // ← 여기서 원인 예외 전체가 보입니다.
         }

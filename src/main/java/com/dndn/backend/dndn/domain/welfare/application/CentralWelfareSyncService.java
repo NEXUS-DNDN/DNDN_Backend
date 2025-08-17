@@ -72,6 +72,8 @@ public class CentralWelfareSyncService {
                 String link     = nz(item.getServDtlLink());
                 String eligible = nzOr(dtl.getTgtrDtlCn(), "대상자 정보 미제공");
                 String submit   = nzOr(dtl.getAlwServCn(), "제출서류 정보 미제공");
+                String dept     = nzOr(dtl.getJurMnofNm(), "담당부처 미제공");                 // department
+                String org      = nzOr(dtl.getJurOrgNm(), "담당기관 미제공");                  //
 
                 // ✅ 카테고리 매핑
                 List<LifeCycle> lifeCycles     = parseLifeCycles(nz(dtl.getLifeArray()));
@@ -107,7 +109,16 @@ public class CentralWelfareSyncService {
                             !Objects.equals(welfare.getEligibleUser(), eligible) ||
                             !Objects.equals(welfare.getSubmitDocument(), submit)) {
 
-                        welfare.update(outline, link, eligible, submit);
+                        welfare.update(
+                                title,      // summary
+                                outline,    // content
+                                link,       // servLink
+                                dept,   // department
+                                org,    // org
+                                eligible,   // eligibleUser
+                                submit      // detailInfo (여기에 제출서류 넣음)
+                        );
+
                         updated = true;
                     }
 

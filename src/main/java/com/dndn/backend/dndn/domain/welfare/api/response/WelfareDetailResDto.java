@@ -1,7 +1,5 @@
 package com.dndn.backend.dndn.domain.welfare.api.response;
 
-import com.dndn.backend.dndn.domain.welfare.domain.enums.RequestStatus;
-import com.dndn.backend.dndn.domain.welfare.domain.enums.ReceiveStatus;
 import com.dndn.backend.dndn.domain.welfare.domain.enums.SourceType;
 import com.dndn.backend.dndn.domain.welfare.domain.Welfare;
 import lombok.Builder;
@@ -12,8 +10,9 @@ import java.util.stream.Collectors;
 
 @Builder
 public record WelfareDetailResDto(
-        Long id,
+        Long welfareId,
         String title,
+        String summary,
         String content,
         String imageUrl,
         List<String> lifeCycleNames,
@@ -23,15 +22,18 @@ public record WelfareDetailResDto(
         String ctpvNm,
         String sggNm,
         String eligibleUser,
-        String submitDocument,
+        String detailInfo,
+        String department,
+        String org,
         LocalDateTime startDate,
         LocalDateTime endDate,
         SourceType sourceType
 ) {
     public static WelfareDetailResDto of(Welfare welfare) {
         return WelfareDetailResDto.builder()
-                .id(welfare.getId())
+                .welfareId(welfare.getId())
                 .title(welfare.getTitle())
+                .summary(welfare.getSummary())
                 .content(welfare.getContent())
                 .imageUrl(welfare.getImageUrl())
                 .lifeCycleNames(welfare.getCategory().getLifeCycles().stream()
@@ -46,8 +48,10 @@ public record WelfareDetailResDto(
                 .servLink(welfare.getServLink())
                 .ctpvNm(welfare.getCtpvNm())
                 .sggNm(welfare.getSggNm())
+                .department(welfare.getDepartment())
+                .org(welfare.getOrg())
                 .eligibleUser(welfare.getEligibleUser())
-                .submitDocument(welfare.getSubmitDocument())
+                .detailInfo(welfare.getDetailInfo())
                 .startDate(welfare.getStartDate())
                 .endDate(welfare.getEndDate())
                 .sourceType(welfare.getSourceType())

@@ -31,6 +31,7 @@ public class SecurityConfig {
                 // 인가 규칙 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/").permitAll()
+                        .requestMatchers("/dndn").permitAll()
                         .requestMatchers("/profile").permitAll()
                         .requestMatchers("/test/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()

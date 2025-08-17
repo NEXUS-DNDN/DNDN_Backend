@@ -13,11 +13,14 @@ public class DisabledResponseDTO {
 
     private DisabilityType disabilityType;
 
+    private boolean registeredDisabled;
+
 
     public static DisabledResponseDTO from(Disabled disabled) {
         return DisabledResponseDTO.builder()
                 .disabillityGrade(disabled.getDisabillityGrade())
                 .disabilityType(disabled.getDisabilityType())
+                .registeredDisabled(disabled.isRegisteredDisabled())
                 .build();
     }
 }

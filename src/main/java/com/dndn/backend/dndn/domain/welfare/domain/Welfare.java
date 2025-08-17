@@ -56,6 +56,9 @@ public class Welfare extends BaseEntity {
     @Lob
     @Column(name = "submit_document", nullable = false, columnDefinition = "TEXT")
     private String submitDocument;
+    // 상세 정보
+    @Column(name = "detail_info", length = 1000)
+    private String detailInfo;
 
     // 신청 시작일
     @Column(name = "start_date", nullable = true)
@@ -64,6 +67,14 @@ public class Welfare extends BaseEntity {
     // 신청 마감일
     @Column(name = "end_date", nullable = true)
     private LocalDateTime endDate;
+
+    // 담당부처
+    @Column(name = "department", length = 200, nullable = true)
+    private String department;
+
+    // 담당기관(조직)
+    @Column(name = "org", length = 200, nullable = true)
+    private String org;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -75,22 +86,26 @@ public class Welfare extends BaseEntity {
     private SourceType sourceType;
 
     @Builder
-    private Welfare(String servId, String title, String content, String servLink,
+    private Welfare(String servId, String title, String summary , String content, String servLink,
                     String ctpvNm, String sggNm,
                     String imageUrl, String eligibleUser,
-                    String submitDocument, LocalDateTime startDate, LocalDateTime endDate,
+                    String detailInfo, LocalDateTime startDate, LocalDateTime endDate,
+                    String department, String org,
                     SourceType sourceType, Category category) {
         this.servId = servId;
         this.title = title;
+        this.summary = summary;
         this.content = content;
         this.servLink = servLink;
+        this.detailInfo = detailInfo;
         this.ctpvNm = ctpvNm;
         this.sggNm = sggNm;
         this.imageUrl = imageUrl;
         this.eligibleUser = eligibleUser;
-        this.submitDocument = submitDocument;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.department = department;
+        this.org = org;
         this.sourceType = sourceType;
         this.category = category;
     }
@@ -104,11 +119,16 @@ public class Welfare extends BaseEntity {
         this.sggNm = sggNm;
     }
 
-    public void update(String content, String servLink, String eligibleUser, String submitDocument) {
+    public void update(String summary, String content, String servLink,
+                       String department, String org,
+                       String eligibleUser, String detailInfo) {
+        this.summary = summary;
         this.content = content;
         this.servLink = servLink;
+        this.department = department;
+        this.org = org;
         this.eligibleUser = eligibleUser;
-        this.submitDocument = submitDocument;
+        this.detailInfo = detailInfo;
     }
 
     public void updatePeriod(LocalDateTime start, LocalDateTime end) {

@@ -21,36 +21,40 @@ public class Welfare extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "service_id", length = 100, nullable = false, unique = true)
+    @Column(name = "service_id", nullable = false, unique = true)
     private String servId;
 
-    @Column(length = 100, nullable = false)
+    @Column(nullable = false)
     private String title;
 
-    @Column(length = 4000, nullable = false)
+    // 본문은 TEXT/CLOB로
+    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "image_url", length = 500)
+    @Column(name = "image_url")
     private String imageUrl;
 
     // 상세 링크
-    @Column(name = "service_link", length = 1000)
+    @Column(name = "service_link")
     private String servLink;
 
     // 시도명
-    @Column(name = "ctpv_nm", length = 50, nullable = true)
+    @Column(name = "ctpv_nm", nullable = true)
     private String ctpvNm;
 
     // 시군구명
-    @Column(name = "sgg_nm", length = 50, nullable = true)
+    @Column(name = "sgg_nm", nullable = true)
     private String sggNm;
 
     // 대상자 설명
-    @Column(name = "eligible_user", length = 1000, nullable = false)
+    @Lob
+    @Column(name = "eligible_user", nullable = false, columnDefinition = "TEXT")
     private String eligibleUser;
 
     // 제출 서류
-    @Column(name = "submit_document", length = 1000, nullable = false)
+    @Lob
+    @Column(name = "submit_document", nullable = false, columnDefinition = "TEXT")
     private String submitDocument;
 
     // 신청 시작일

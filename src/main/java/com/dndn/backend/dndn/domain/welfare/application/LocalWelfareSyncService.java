@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import static com.dndn.backend.dndn.domain.category.util.CategoryParserUtils.*;
 
@@ -71,11 +72,9 @@ public class LocalWelfareSyncService {
                 LocalDateTime start = parseYmd(detail.getEnfcBgngYmd());
                 LocalDateTime end   = parseYmd(detail.getEnfcEndYmd());
 
-                // 내용/대상/서류
-                String content       = (detail.getServDgst() != null) ? detail.getServDgst() : item.getServDgst();
-                String eligibleUser  = detail.getSprtTrgtCn();   // 지원대상
-                String submitDoc     = detail.getAlwServCn();    // 제출서류/지원내용
-                String servLink      = item.getServDtlLink();    // 목록에만 존재
+                String org = Optional.ofNullable(detail.getInqplCtadrList())
+                        .map(LocalDetailResDto.RelatedInfo::getWlfareInfoReldNm)
+                        .orElse(null);
 
                 Welfare welfare = welfareRepository.findByServId(servId).orElse(null);
 
@@ -83,38 +82,55 @@ public class LocalWelfareSyncService {
                     welfareRepository.save(Welfare.builder()
                             .servId(servId)
                             .title(item.getServNm())
-                            .content(content != null ? content : "")
-                            .servLink(servLink)
+                            .summary(detail.getServDgst())
+                            .content(detail.getAlwServCn())
+                            .servLink(item.getServDtlLink())
                             .imageUrl(null)
-                            .eligibleUser(eligibleUser != null ? eligibleUser : "")
-                            .submitDocument(submitDoc != null ? submitDoc : "")
+                            .eligibleUser(detail.getSprtTrgtCn())
+                            .detailInfo(detail.getBasfrmList().getWlfareInfoReldCn())
                             .startDate(start)
                             .endDate(end)
+                            .department(detail.getBizChrDeptNm())
+                            .org(org)
                             .sourceType(SourceType.LOCAL)
                             .ctpvNm(item.getCtpvNm())
                             .sggNm(item.getSggNm())
                             .category(category)
                             .build());
                 } else {
+                    String newSummary      = detail.getServDgst();
+                    String newContent      = detail.getAlwServCn();
+                    String newServLink     = item.getServDtlLink();
+                    String newDepartment   = detail.getBizChrDeptNm();
+                    String newOrg          = org;
+                    String newEligibleUser = detail.getSprtTrgtCn();
+                    String newDetailInfo   = detail.getBasfrmList().getWlfareInfoReldCn();
+
+                    // 지역/기간 (이미 위에서 계산한 start, end 재사용)
+                    String newCtpvNm = item.getCtpvNm();
+                    String newSggNm  = item.getSggNm();
+
                     boolean updated = false;
 
-                    // 본문/링크/대상/서류
-                    String curContent = welfare.getContent();
-                    String curLink    = welfare.getServLink();
-                    String curElig    = welfare.getEligibleUser();
-                    String curDoc     = welfare.getSubmitDocument();
+                    // 1) 본문/요약/링크/부처/기관/대상자/상세정보 변경 체크 + 갱신
+                    boolean needsMainUpdate =
+                            !safeEq(welfare.getSummary(),      newSummary)      ||
+                                    !safeEq(welfare.getContent(),      newContent)      ||
+                                    !safeEq(welfare.getServLink(),     newServLink)     ||
+                                    !safeEq(welfare.getDepartment(),   newDepartment)   ||
+                                    !safeEq(welfare.getOrg(),          newOrg)          ||
+                                    !safeEq(welfare.getEligibleUser(), newEligibleUser) ||
+                                    !safeEq(welfare.getDetailInfo(),   newDetailInfo);
 
-                    // 변경 체크
-                    if (!safeEq(curContent, content) ||
-                            !safeEq(curLink, servLink) ||
-                            !safeEq(curElig, eligibleUser) ||
-                            !safeEq(curDoc, submitDoc)) {
-
+                    if (needsMainUpdate) {
                         welfare.update(
-                                content != null ? content : "",
-                                servLink,
-                                eligibleUser != null ? eligibleUser : "",
-                                submitDoc != null ? submitDoc : ""
+                                newSummary,
+                                newContent,
+                                newServLink,
+                                newDepartment,
+                                newOrg,
+                                newEligibleUser,
+                                newDetailInfo
                         );
                         updated = true;
                     }

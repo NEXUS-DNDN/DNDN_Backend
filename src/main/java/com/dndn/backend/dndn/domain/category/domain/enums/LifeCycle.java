@@ -20,12 +20,16 @@ public enum LifeCycle {
     }
 
     public static LifeCycle fromKor(String kor) {
+        if (kor == null) throw new IllegalArgumentException("null 값 들어옴");
+
+        String normalized = kor.replace(" ", "").trim();
         for (LifeCycle value : values()) {
-            if (value.kor.equals(kor)) {
+            if (value.kor.replace(" ", "").equals(normalized)) {
                 return value;
             }
         }
         throw new IllegalArgumentException("존재하지 않는 생애주기: " + kor);
     }
+
 }
 

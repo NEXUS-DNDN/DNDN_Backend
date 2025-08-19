@@ -7,5 +7,5 @@ public class SeniorRequestDTO {
 
     private boolean livingWithChildren;
 
-    private boolean houseHolder;
+    private boolean isReceivingBasicPension;
 }

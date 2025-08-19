@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import static com.dndn.backend.dndn.domain.category.util.CategoryParserUtils.*;
 
@@ -30,7 +31,6 @@ public class LocalWelfareSyncService {
     private final WelfareRepository welfareRepository;
     private final LocalWelfareClient localClient;
     private final CategoryService categoryService;
-
 
     public void syncLocalWelfareData() {
         int page = 1;
@@ -47,79 +47,101 @@ public class LocalWelfareSyncService {
 
             for (LocalListResDto.ServiceItem item : listDto.getServList()) {
                 String servId = item.getServId();
-                if (servId == null || servId.isBlank()) continue;
+                if (isBlank(servId)) continue;
 
-                // 상세 조회(기간/대상/제출서류 확보)
+                // 상세 조회
                 LocalDetailResDto detail = localClient.getWelfareDetail(servId);
                 if (detail == null) {
                     log.warn("[지자체 동기화] 상세 조회 실패 servId={}", servId);
                     continue;
                 }
 
-                // 카테고리 매핑(상세값 우선, 없으면 목록값 사용)
-                String lifeSrc  = (detail.getLifeNmArray() != null) ? detail.getLifeNmArray() : item.getLifeNmArray();
-                String hhSrc    = (detail.getTrgterIndvdlNmArray() != null) ? detail.getTrgterIndvdlNmArray() : item.getTrgterIndvdlNmArray();
-                String intrsSrc = (detail.getIntrsThemaNmArray() != null) ? detail.getIntrsThemaNmArray() : item.getIntrsThemaNmArray();
+                // 카테고리 매핑
+                String lifeSrc  = nzOr(detail.getLifeNmArray(), item.getLifeNmArray());
+                String hhSrc    = nzOr(detail.getTrgterIndvdlNmArray(), item.getTrgterIndvdlNmArray());
+                String intrsSrc = nzOr(detail.getIntrsThemaNmArray(), item.getIntrsThemaNmArray());
 
-                List<LifeCycle> life = parseLifeCycles(lifeSrc);
-                List<HouseholdType> hh = parseHouseholdTypes(hhSrc);
-                List<InterestTopic> it = parseInterestTopics(intrsSrc);
-
+                List<LifeCycle> life = parseLifeCycles(nz(lifeSrc));
+                List<HouseholdType> hh = parseHouseholdTypes(nz(hhSrc));
+                List<InterestTopic> it = parseInterestTopics(nz(intrsSrc));
                 Category category = categoryService.findOrCreateCategory(life, hh, it);
+                if (category == null) {
+                    log.warn("[지자체 동기화] 카테고리 null (servId={})", servId);
+                    continue;
+                }
 
                 // 기간
                 LocalDateTime start = parseYmd(detail.getEnfcBgngYmd());
                 LocalDateTime end   = parseYmd(detail.getEnfcEndYmd());
 
-                // 내용/대상/서류
-                String content       = (detail.getServDgst() != null) ? detail.getServDgst() : item.getServDgst();
-                String eligibleUser  = detail.getSprtTrgtCn();   // 지원대상
-                String submitDoc     = detail.getAlwServCn();    // 제출서류/지원내용
-                String servLink      = item.getServDtlLink();    // 목록에만 존재
+                // 기관 정보 (단일 RelatedInfo 객체 처리)
+                String org = Optional.ofNullable(detail.getInqplCtadrList())
+                        .map(LocalDetailResDto.RelatedInfo::getWlfareInfoReldNm)
+                        .orElse("기관 미제공");
+
+                // 상세 정보 (단일 RelatedInfo 객체 처리)
+                String detailInfo = Optional.ofNullable(detail.getBasfrmList())
+                        .map(LocalDetailResDto.RelatedInfo::getWlfareInfoReldCn)
+                        .orElse("상세정보 미제공");
 
                 Welfare welfare = welfareRepository.findByServId(servId).orElse(null);
 
                 if (welfare == null) {
                     welfareRepository.save(Welfare.builder()
                             .servId(servId)
-                            .title(item.getServNm())
-                            .content(content != null ? content : "")
-                            .servLink(servLink)
+                            .title(nzOr(detail.getServNm(), item.getServNm(), "제목 미제공"))
+                            .summary(detail.getServDgst())
+                            .content(nzOr(detail.getAlwServCn(), "내용 미제공"))
+                            .servLink(nz(item.getServDtlLink()))
                             .imageUrl(null)
-                            .eligibleUser(eligibleUser != null ? eligibleUser : "")
-                            .submitDocument(submitDoc != null ? submitDoc : "")
+                            .eligibleUser(nzOr(detail.getSprtTrgtCn(), "대상자 정보 미제공"))
+                            .submitDocument(nzOr(detail.getAplyDocList(), "제출서류 미제공")) // ✅ 추가
+                            .detailInfo(detailInfo)
                             .startDate(start)
                             .endDate(end)
+                            .department(nzOr(detail.getBizChrDeptNm(), "담당부처 미제공"))
+                            .org(org)
                             .sourceType(SourceType.LOCAL)
                             .ctpvNm(item.getCtpvNm())
                             .sggNm(item.getSggNm())
                             .category(category)
                             .build());
                 } else {
+                    // 새로운 값 추출
+                    String newSummary      = detail.getServDgst();
+                    String newContent      = nzOr(detail.getAlwServCn(), "내용 미제공");
+                    String newServLink     = nz(item.getServDtlLink());
+                    String newDepartment   = nzOr(detail.getBizChrDeptNm(), "담당부처 미제공");
+                    String newOrg          = org;
+                    String newEligibleUser = nzOr(detail.getSprtTrgtCn(), "대상자 정보 미제공");
+                    String newDetailInfo   = detailInfo;
+
                     boolean updated = false;
 
-                    // 본문/링크/대상/서류
-                    String curContent = welfare.getContent();
-                    String curLink    = welfare.getServLink();
-                    String curElig    = welfare.getEligibleUser();
-                    String curDoc     = welfare.getSubmitDocument();
+                    // 주요 필드 변경 여부
+                    boolean needsMainUpdate =
+                            !safeEq(welfare.getSummary(),      newSummary)      ||
+                                    !safeEq(welfare.getContent(),      newContent)      ||
+                                    !safeEq(welfare.getServLink(),     newServLink)     ||
+                                    !safeEq(welfare.getDepartment(),   newDepartment)   ||
+                                    !safeEq(welfare.getOrg(),          newOrg)          ||
+                                    !safeEq(welfare.getEligibleUser(), newEligibleUser) ||
+                                    !safeEq(welfare.getDetailInfo(),   newDetailInfo);
 
-                    // 변경 체크
-                    if (!safeEq(curContent, content) ||
-                            !safeEq(curLink, servLink) ||
-                            !safeEq(curElig, eligibleUser) ||
-                            !safeEq(curDoc, submitDoc)) {
-
+                    if (needsMainUpdate) {
                         welfare.update(
-                                content != null ? content : "",
-                                servLink,
-                                eligibleUser != null ? eligibleUser : "",
-                                submitDoc != null ? submitDoc : ""
+                                newSummary,
+                                newContent,
+                                newServLink,
+                                newDepartment,
+                                newOrg,
+                                newEligibleUser,
+                                newDetailInfo
                         );
                         updated = true;
                     }
 
-                    // 카테고리 변경(PK 기준)
+                    // 카테고리
                     if (welfare.getCategory() == null ||
                             welfare.getCategory().getId() == null ||
                             !welfare.getCategory().getId().equals(category.getId())) {
@@ -127,24 +149,20 @@ public class LocalWelfareSyncService {
                         updated = true;
                     }
 
-                    // 지역 정보 변경
+                    // 지역
                     if (!safeEq(welfare.getCtpvNm(), item.getCtpvNm()) ||
                             !safeEq(welfare.getSggNm(), item.getSggNm())) {
                         welfare.updateRegion(item.getCtpvNm(), item.getSggNm());
                         updated = true;
                     }
 
-                    // 기간 변경(엔티티에 period 업데이트 메서드 권장)
+                    // 기간
                     if (!safeEq(welfare.getStartDate(), start) || !safeEq(welfare.getEndDate(), end)) {
-                        // Welfare 엔티티에 아래 메서드 하나 추가해 두는 걸 추천합니다.
-                        // public void updatePeriod(LocalDateTime start, LocalDateTime end) { this.startDate = start; this.endDate = end; }
                         welfare.updatePeriod(start, end);
                         updated = true;
                     }
 
-                    if (updated) {
-                        welfareRepository.save(welfare);
-                    }
+                    if (updated) welfareRepository.save(welfare);
                 }
             }
 
@@ -152,14 +170,23 @@ public class LocalWelfareSyncService {
             page++;
         }
 
-        log.info("[지자체 동기화] {} 전체 동기화 완료");
+        log.info("[지자체 동기화] 전체 동기화 완료");
     }
 
-    // yyyyMMdd -> LocalDateTime(00:00)
+    /* ---------- helpers ---------- */
     private LocalDateTime parseYmd(String ymd) {
-        if (ymd == null || ymd.isBlank()) return null;
+        if (isBlank(ymd)) return null;
         LocalDate d = LocalDate.parse(ymd.trim(), DateTimeFormatter.BASIC_ISO_DATE);
         return d.atStartOfDay();
+    }
+
+    private static boolean isBlank(String s) { return s == null || s.isBlank(); }
+
+    private static String nz(String s) { return s == null ? "" : s; }
+
+    private static String nzOr(String... candidates) {
+        for (String c : candidates) if (!isBlank(c)) return c;
+        return "";
     }
 
     private boolean safeEq(String a, String b) {

@@ -1,5 +1,7 @@
 package com.dndn.backend.dndn.domain.user.domain.entity;
 
+import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
+import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import com.dndn.backend.dndn.domain.model.entity.BaseEntity;
 import com.dndn.backend.dndn.domain.model.enums.*;
 import com.dndn.backend.dndn.domain.user.dto.UserUpdateRequestDTO;
@@ -10,6 +12,8 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Date;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -70,10 +74,18 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private EmploymentType employment;
 
-    // 추가 정보
+    // 추가 정보 - 생애주기
+    // (추천로직 참고/조회용(수정x)이므로 연관관계 설정 안했음)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private AdditionalInformation additionalInformation;
+    private LifeCycle lifeCycle;
+
+    //추가 정보 - 가구 유형 (복수 선택 가능)
+    @Builder.Default
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "user_household_type", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "household_type")
+    @Enumerated(EnumType.STRING)
+    private Set<HouseholdType> householdTypes = new HashSet<>();
 
     // 노인일 경우
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -106,6 +118,8 @@ public class User extends BaseEntity {
         this.gender = dto.getGender();
         this.family = dto.getFamily();
         this.employment = dto.getEmployment();
+        this.lifeCycle = dto.getLifeCycle();
+        this.householdTypes = dto.getHouseholdTypes();
 
         return this;
     }

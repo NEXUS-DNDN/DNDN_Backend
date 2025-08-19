@@ -15,6 +15,9 @@ public class LocalDetailResDto {
     @JacksonXmlProperty(localName = "resultMessage")
     private String resultMessage;
 
+    @JacksonXmlProperty(localName = "aplyDocList")
+    private String aplyDocList;
+
     @JacksonXmlProperty(localName = "servId")
     private String servId;
 

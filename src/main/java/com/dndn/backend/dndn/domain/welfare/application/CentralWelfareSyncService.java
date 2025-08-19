@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.dndn.backend.dndn.domain.category.util.CategoryParserUtils.*;
@@ -31,91 +32,69 @@ public class CentralWelfareSyncService {
     private final CentralWelfareClient centralClient;
     private final CategoryService categoryService;
 
-
-    @Transactional
     public void syncCentralWelfareData() {
         int page = 1;
         int numOfRows = 100;
 
         while (true) {
-            CentralListResDto centralListResDto = centralClient.getWelfareList(page, numOfRows);
+            CentralListResDto list = centralClient.getWelfareList(page, numOfRows);
             log.info("[동기화] {}페이지 응답 도착", page);
 
-            if (centralListResDto == null) {
-                log.warn("centralListResDto가 null입니다.");
+            if (list == null) { log.warn("centralListResDto == null"); break; }
+            // 목록 성공 코드 확인(운영 응답은 "0" 또는 "00" 케이스가 있으므로 둘 다 허용)
+            if (list.getResultCode() != null && !("0".equals(list.getResultCode()) || "00".equals(list.getResultCode()))) {
+                log.warn("목록 실패 code={}, msg={}", list.getResultCode(), list.getResultMessage());
                 break;
             }
 
-            log.info("resultCode: {}", centralListResDto.getResultCode());
-            log.info("resultMessage: {}", centralListResDto.getResultMessage());
-
-            List<CentralListResDto.ServiceItem> serviceItems = centralListResDto.getServList();
-            if (serviceItems == null) {
-                log.warn("serviceItems가 null입니다.");
-                break;
-            }
-            if (serviceItems.isEmpty()) {
-                log.warn("serviceItems가 비어 있습니다.");
+            List<CentralListResDto.ServiceItem> items = list.getServList();
+            if (items == null || items.isEmpty()) {
+                log.info("serviceItems 비어있음. 종료");
                 break;
             }
 
-            log.info("[동기화] {}개의 서비스 처리 시작", serviceItems.size());
+            log.info("[동기화] {}개의 서비스 처리 시작", items.size());
 
-            for (CentralListResDto.ServiceItem item : serviceItems) {
+            for (CentralListResDto.ServiceItem item : items) {
                 String servId = item.getServId();
+                if (isBlank(servId)) continue;
 
-                CentralDetailResDto wantedDtl = centralClient.getWelfareDetail(servId);
+                CentralDetailResDto dtl = centralClient.getWelfareDetail(servId);
+                if (dtl == null) { log.warn("상세 null (servId={})", servId); continue; }
+                if (dtl.getResultCode() != null && !("0".equals(dtl.getResultCode()) || "00".equals(dtl.getResultCode()))) {
+                    log.warn("상세 실패 (servId={}) code={}, msg={}", servId, dtl.getResultCode(), dtl.getResultMessage());
+                    continue;
+                }
+
+                // ✅ null/blank 안전 추출 + 대체값
+                String title    = nzOr(dtl.getServNm(), item.getServNm(), "제목 미제공");
+                String outline  = nzOr(dtl.getWlfareInfoOutlCn(), item.getServDgst(), "내용 미제공"); // ← content 절대 null 금지
+                String link     = nz(item.getServDtlLink());
+                String eligible = nzOr(dtl.getTgtrDtlCn(), "대상자 정보 미제공");
+                String submit   = nzOr(dtl.getAlwServCn(), "제출서류 정보 미제공");
+                String dept     = nzOr(dtl.getJurMnofNm(), "담당부처 미제공");                 // department
+                String org      = nzOr(dtl.getJurOrgNm(), "담당기관 미제공");                  //
 
                 // ✅ 카테고리 매핑
-                List<LifeCycle> lifeCycles = parseLifeCycles(wantedDtl.getLifeArray());
-                List<HouseholdType> householdTypes = parseHouseholdTypes(wantedDtl.getTrgterIndvdlArray());
-                List<InterestTopic> interestTopics = parseInterestTopics(wantedDtl.getIntrsThemaArray());
-
-                Category category = categoryService.findOrCreateCategory(lifeCycles, householdTypes, interestTopics);
+                List<LifeCycle> lifeCycles     = parseLifeCycles(nz(dtl.getLifeArray()));
+                List<HouseholdType> household  = parseHouseholdTypes(nz(dtl.getTrgterIndvdlArray()));
+                List<InterestTopic> interests  = parseInterestTopics(nz(dtl.getIntrsThemaArray()));
+                Category category = categoryService.findOrCreateCategory(lifeCycles, household, interests);
+                if (category == null) { log.warn("카테고리 null (servId={})", servId); continue; }
 
                 Welfare welfare = welfareRepository.findByServId(servId).orElse(null);
-
-                String detailInfo = Optional.ofNullable(wantedDtl.getBasfrmList())
-                        .flatMap(list -> list.stream()
-                                .map(CentralDetailResDto.ServDetail::getServSeDetailLink)
-                                .filter(Objects::nonNull)
-                                .map(String::trim)
-                                .filter(s -> !s.isEmpty())
-                                .findFirst())
-                        .orElse(null);
-
-                String servLink = Optional.ofNullable(wantedDtl.getInqplHmpgReldList())
-                        .flatMap(list -> list.stream()
-                                .map(CentralDetailResDto.ServDetail::getServSeDetailLink)
-                                .filter(Objects::nonNull)
-                                .map(String::trim)
-                                .filter(s -> !s.isEmpty())
-                                .findFirst())
-                        .orElse(null);
-
-                String org = Optional.ofNullable(wantedDtl.getInqplCtadrList())
-                        .flatMap(list -> list.stream()
-                                .map(CentralDetailResDto.ServDetail::getServSeDetailNm)
-                                .filter(Objects::nonNull)
-                                .map(String::trim)
-                                .filter(s -> !s.isEmpty())
-                                .findFirst())
-                        .orElseGet(wantedDtl::getRprsCtadr);
 
                 if (welfare == null) {
                     Welfare newWelfare = Welfare.builder()
                             .servId(servId)
-                            .title(wantedDtl.getServNm())
-                            .summary(wantedDtl.getWlfareInfoOutlCn())
-                            .content(wantedDtl.getAlwServCn())
-                            .servLink(servLink)
+                            .title(title)
+                            .content(outline)
+                            .servLink(link)
                             .ctpvNm("지역정보없음")
                             .sggNm("지역정보없음")
-                            .department(wantedDtl.getJurMnofNm())
-                            .org(org)
                             .imageUrl(null)
-                            .eligibleUser(wantedDtl.getTgtrDtlCn())
-                            .detailInfo(detailInfo)
+                            .eligibleUser(eligible)
+                            .submitDocument(submit)
                             .startDate(null)
                             .endDate(null)
                             .sourceType(SourceType.CENTRAL)
@@ -123,50 +102,38 @@ public class CentralWelfareSyncService {
                             .build();
                     welfareRepository.save(newWelfare);
                 } else {
-                    String newSummary      = wantedDtl.getWlfareInfoOutlCn();
-                    String newContent      = wantedDtl.getAlwServCn();
-                    String newServLink     = servLink;
-                    String newDetailInfo   = detailInfo;
-                    String newDepartment   = wantedDtl.getJurMnofNm();
-                    String newEligibleUser = wantedDtl.getTgtrDtlCn();
-                    String newOrg = org;
+                    boolean updated = false;
 
-                    boolean needsUpdate =
-                            !Objects.equals(welfare.getSummary(),      newSummary)      ||
-                                    !Objects.equals(welfare.getContent(),      newContent)      ||
-                                    !Objects.equals(welfare.getServLink(),     newServLink)     ||
-                                    !Objects.equals(welfare.getDepartment(),   newDepartment)   ||
-                                    !Objects.equals(welfare.getOrg(),          newOrg)          ||
-                                    !Objects.equals(welfare.getEligibleUser(), newEligibleUser) ||
-                                    !Objects.equals(welfare.getDetailInfo(),   newDetailInfo);
+                    if (!Objects.equals(welfare.getContent(), outline) ||
+                            !Objects.equals(welfare.getServLink(), link) ||
+                            !Objects.equals(welfare.getEligibleUser(), eligible) ||
+                            !Objects.equals(welfare.getSubmitDocument(), submit)) {
 
-                    if (needsUpdate) {
                         welfare.update(
-                                newSummary,
-                                newContent,
-                                newServLink,
-                                newDepartment,
-                                newOrg,
-                                newEligibleUser,
-                                newDetailInfo
+                                title,      // summary
+                                outline,    // content
+                                link,       // servLink
+                                dept,   // department
+                                org,    // org
+                                eligible,   // eligibleUser
+                                submit      // detailInfo (여기에 제출서류 넣음)
                         );
+
+                        updated = true;
                     }
 
-                    // ✅ 카테고리가 변경되었을 수도 있음
-                    if (!welfare.getCategory().getId().equals(category.getId())) {
+                    if (welfare.getCategory() == null ||
+                            !Objects.equals(welfare.getCategory().getId(), category.getId())) {
                         welfare.updateCategory(category);
-                        needsUpdate = true;
+                        updated = true;
                     }
 
-                    // ✅ 지역정보가 비어있으면 기본값 세팅
-                    if (welfare.getCtpvNm() == null || welfare.getSggNm() == null) {
+                    if (isBlank(welfare.getCtpvNm()) || isBlank(welfare.getSggNm())) {
                         welfare.updateRegion("지역정보없음", "지역정보없음");
-                        needsUpdate = true;
+                        updated = true;
                     }
 
-                    if (needsUpdate) {
-                        welfareRepository.save(welfare);
-                    }
+                    if (updated) welfareRepository.save(welfare);
                 }
             }
 
@@ -176,4 +143,14 @@ public class CentralWelfareSyncService {
 
         log.info("[복지 동기화] 중앙부처 전체 동기화 완료");
     }
+
+    /* ---------- helpers ---------- */
+    private static String nz(String s) { return s == null ? "" : s; }
+
+    private static String nzOr(String... candidates) {
+        for (String c : candidates) if (!isBlank(c)) return c;
+        return "";
+    }
+
+    private static boolean isBlank(String s) { return s == null || s.isBlank(); }
 }

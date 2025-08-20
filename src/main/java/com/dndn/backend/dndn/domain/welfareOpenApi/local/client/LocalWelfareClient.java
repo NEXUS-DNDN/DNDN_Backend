@@ -89,5 +89,25 @@ public class LocalWelfareClient {
 
         return response.getBody();
     }
+
+
+    public String debugWelfareDetail(String servId) {
+        String url = UriComponentsBuilder.newInstance()
+                .scheme("https")
+                .host(baseUrl)
+                .path("/B554287/LocalGovernmentWelfareInformations/LcgvWelfaredetailed")
+                .queryParam("serviceKey", serviceKey)
+                .queryParam("servId", servId)
+                .build()
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE);
+
+        ResponseEntity<String> resp = restTemplate.exchange(
+                url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
+
+        return resp.getBody();
+    }
 }
 

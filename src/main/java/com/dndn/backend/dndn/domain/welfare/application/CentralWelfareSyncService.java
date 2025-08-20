@@ -14,10 +14,8 @@ import com.dndn.backend.dndn.domain.welfareOpenApi.central.dto.response.CentralL
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -37,17 +35,17 @@ public class CentralWelfareSyncService {
         int numOfRows = 100;
 
         while (true) {
-            CentralListResDto list = centralClient.getWelfareList(page, numOfRows);
+            CentralListResDto reslist = centralClient.getWelfareList(page, numOfRows);
             log.info("[동기화] {}페이지 응답 도착", page);
 
-            if (list == null) { log.warn("centralListResDto == null"); break; }
+            if (reslist == null) { log.warn("centralListResDto == null"); break; }
             // 목록 성공 코드 확인(운영 응답은 "0" 또는 "00" 케이스가 있으므로 둘 다 허용)
-            if (list.getResultCode() != null && !("0".equals(list.getResultCode()) || "00".equals(list.getResultCode()))) {
-                log.warn("목록 실패 code={}, msg={}", list.getResultCode(), list.getResultMessage());
+            if (reslist.getResultCode() != null && !("0".equals(reslist.getResultCode()) || "00".equals(reslist.getResultCode()))) {
+                log.warn("목록 실패 code={}, msg={}", reslist.getResultCode(), reslist.getResultMessage());
                 break;
             }
 
-            List<CentralListResDto.ServiceItem> items = list.getServList();
+            List<CentralListResDto.ServiceItem> items = reslist.getServList();
             if (items == null || items.isEmpty()) {
                 log.info("serviceItems 비어있음. 종료");
                 break;
@@ -68,12 +66,31 @@ public class CentralWelfareSyncService {
 
                 // ✅ null/blank 안전 추출 + 대체값
                 String title    = nzOr(dtl.getServNm(), item.getServNm(), "제목 미제공");
-                String outline  = nzOr(dtl.getWlfareInfoOutlCn(), item.getServDgst(), "내용 미제공"); // ← content 절대 null 금지
-                String link     = nz(item.getServDtlLink());
+                String summary = nzOr(dtl.getWlfareInfoOutlCn(), "요약 미제공");
+                String content  = nzOr(dtl.getAlwServCn(), item.getServDgst(), "내용 미제공"); // ← content 절대 null 금지
+
+                String link = Optional.ofNullable(dtl.getInqplHmpgReldList())
+                        .flatMap(list -> list.stream()
+                                .map(CentralDetailResDto.ServDetail::getServSeDetailLink)
+                                .filter(Objects::nonNull)
+                                .map(String::trim)
+                                .filter(s -> !s.isEmpty())
+                                .findFirst())
+                        .orElse(null);
+
+                String detailInfo = Optional.ofNullable(dtl.getBasfrmList())
+                        .flatMap(list -> list.stream()
+                                .map(CentralDetailResDto.ServDetail::getServSeDetailLink)
+                                .filter(Objects::nonNull)
+                                .map(String::trim)
+                                .filter(s -> !s.isEmpty())
+                                .findFirst())
+                        .orElse(null);
+
                 String eligible = nzOr(dtl.getTgtrDtlCn(), "대상자 정보 미제공");
                 String submit   = nzOr(dtl.getAlwServCn(), "제출서류 정보 미제공");
                 String dept     = nzOr(dtl.getJurMnofNm(), "담당부처 미제공");                 // department
-                String org      = nzOr(dtl.getJurOrgNm(), "담당기관 미제공");                  //
+                String org      = nzOr(dtl.getJurMnofNm(), "담당기관 미제공");                  //
 
                 // ✅ 카테고리 매핑
                 List<LifeCycle> lifeCycles     = parseLifeCycles(nz(dtl.getLifeArray()));
@@ -88,13 +105,17 @@ public class CentralWelfareSyncService {
                     Welfare newWelfare = Welfare.builder()
                             .servId(servId)
                             .title(title)
-                            .content(outline)
+                            .summary(summary)
+                            .content(content)
                             .servLink(link)
                             .ctpvNm("지역정보없음")
                             .sggNm("지역정보없음")
+                            .department(dept)
+                            .org(org)
                             .imageUrl(null)
                             .eligibleUser(eligible)
                             .submitDocument(submit)
+                            .detailInfo(detailInfo)
                             .startDate(null)
                             .endDate(null)
                             .sourceType(SourceType.CENTRAL)
@@ -104,19 +125,19 @@ public class CentralWelfareSyncService {
                 } else {
                     boolean updated = false;
 
-                    if (!Objects.equals(welfare.getContent(), outline) ||
+                    if (!Objects.equals(welfare.getContent(), content) ||
                             !Objects.equals(welfare.getServLink(), link) ||
                             !Objects.equals(welfare.getEligibleUser(), eligible) ||
                             !Objects.equals(welfare.getSubmitDocument(), submit)) {
 
                         welfare.update(
-                                title,      // summary
-                                outline,    // content
+                                summary,      // summary
+                                content,    // content
                                 link,       // servLink
                                 dept,   // department
                                 org,    // org
                                 eligible,   // eligibleUser
-                                submit      // detailInfo (여기에 제출서류 넣음)
+                                detailInfo      // detailInfo (여기에 제출서류 넣음)
                         );
 
                         updated = true;

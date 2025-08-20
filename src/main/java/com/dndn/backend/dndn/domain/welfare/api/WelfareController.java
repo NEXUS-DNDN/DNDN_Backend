@@ -8,11 +8,12 @@ import com.dndn.backend.dndn.domain.user.service.UserService;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareDetailResDto;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareListResDto;
 import com.dndn.backend.dndn.domain.welfare.application.WelfareService;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import com.dndn.backend.dndn.domain.welfare.dto.RecommendedWelfareResponseDTO;
 import com.dndn.backend.dndn.global.common.response.BaseResponse;
 import com.dndn.backend.dndn.global.error.code.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

@@ -2,6 +2,7 @@ package com.dndn.backend.dndn.domain.welfare.application;
 
 import com.dndn.backend.dndn.domain.welfareOpenApi.central.client.CentralWelfareClient;
 import com.dndn.backend.dndn.domain.welfareOpenApi.local.client.LocalWelfareClient;
+import com.dndn.backend.dndn.domain.welfareOpenApi.local.dto.response.LocalDetailResDto;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,20 +23,20 @@ public class WelfareSyncScheduler {
 
 //    @PostConstruct
 //    public void initSync() {
-//        String rawXml = centralClient.debugWelfareListXml(1, 10);
+//        String rawXml = localClient.debugWelfareDetail("WLF00001760");
 //        log.info("[Raw XML 출력]\n{}", rawXml);
 //    }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void runOnceAfterStartup() {
-        log.info("[복지 동기화] 앱 기동 후 1회 실행 시작");
-        try {
+//    @EventListener(ApplicationReadyEvent.class)
+//    public void runOnceAfterStartup() {
+//        log.info("[복지 동기화] 앱 기동 후 1회 실행 시작");
+//        try {
 //            centralWelfareSyncService.syncCentralWelfareData();
-            localWelfareSyncService.syncLocalWelfareData();
-        } catch (Exception e) {
-            log.error("[복지 동기화] 실행 중 예외", e); // ← 여기서 원인 예외 전체가 보입니다.
-        }
-    }
+//            localWelfareSyncService.syncLocalWelfareData();
+//        } catch (Exception e) {
+//            log.error("[복지 동기화] 실행 중 예외", e); // ← 여기서 원인 예외 전체가 보입니다.
+//        }
+//    }
 //    @PostConstruct
 //    public void initSync() {
 //        log.info("[복지 동기화] 초기 실행 시작");

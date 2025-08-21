@@ -70,8 +70,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",          // 로컬 프론트
                 "http://127.0.0.1:5173",
-                "http://nexusdndn.duckdns.org",   // ✅ 배포 서버 오리진 추가
-                "https://nexusdndn.duckdns.org"
+                "https://nexusdndn.duckdns.org"  // ✅ 배포 서버 오리진 추가
         ));
 
         // 사용 메서드

@@ -44,6 +44,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/welfare/**").permitAll()
+                        .requestMatchers("/application/**").permitAll()
+                        .requestMatchers("/interest/**").permitAll()
                         .requestMatchers(
                                 "/user/**",
                                 "/v3/api-docs/**",
@@ -66,19 +68,19 @@ public class SecurityConfig {
 
         // 꼭 필요한 오리진만 명시하세요 (credentials=true이면 * 불가)
         config.setAllowedOrigins(List.of(
-                "",                               // 배포 프론트
-                "http://localhost:3000",          // 로컬 프론트
-                "http://127.0.0.1:3000"
+                "http://localhost:5173",          // 로컬 프론트
+                "http://127.0.0.1:5173"
         ));
 
         // 사용 메서드
         config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
 
-        // 프런트에서 보낼 수 있는 헤더 (JWT는 Authorization 필요)
-        config.setAllowedHeaders(List.of("*"));
+        // 프런트에서 보낼 수 있는 헤더
+        config.setAllowedHeaders(List.of("Authorization","Content-Type","X-Requested-With","Origin",
+                "Accept","Cache-Control","Pragma","If-Modified-Since","Range","Content-Length"));
 
         // 브라우저가 접근 가능한 응답 헤더 (필요 시)
-        config.setExposedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization","Set-Cookie"));
 
         // 쿠키/인증정보 전송 허용 (JWT를 헤더로 쓰더라도 SPA에서 쿠키 쓰면 필요)
         config.setAllowCredentials(true);

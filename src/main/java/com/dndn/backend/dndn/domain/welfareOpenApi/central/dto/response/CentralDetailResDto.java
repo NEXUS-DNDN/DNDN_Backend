@@ -20,6 +20,9 @@ public class CentralDetailResDto {
     @JacksonXmlProperty(localName = "jurMnofNm")
     private String jurMnofNm;
 
+    @JacksonXmlProperty(localName = "jurOrgNm")
+    private String jurOrgNm;
+
     @JacksonXmlProperty(localName = "tgtrDtlCn")
     private String tgtrDtlCn;
 

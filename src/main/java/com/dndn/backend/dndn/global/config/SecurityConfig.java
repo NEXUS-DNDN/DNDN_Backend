@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 인가 규칙 설정
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/dndn").permitAll()
                         .requestMatchers("/profile").permitAll()
@@ -67,7 +68,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         // 꼭 필요한 오리진만 명시하세요 (credentials=true이면 * 불가)
-        config.setAllowedOrigins(List.of(
+        config.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",          // 로컬 프론트
                 "http://127.0.0.1:5173",
                 "https://nexusdndn.duckdns.org"  // ✅ 배포 서버 오리진 추가

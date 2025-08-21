@@ -69,7 +69,9 @@ public class SecurityConfig {
         // 꼭 필요한 오리진만 명시하세요 (credentials=true이면 * 불가)
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",          // 로컬 프론트
-                "http://127.0.0.1:5173"
+                "http://127.0.0.1:5173",
+                "http://nexusdndn.duckdns.org",   // ✅ 배포 서버 오리진 추가
+                "https://nexusdndn.duckdns.org"
         ));
 
         // 사용 메서드

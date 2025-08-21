@@ -7,10 +7,12 @@ import com.dndn.backend.dndn.domain.application.api.dto.response.ApplicationList
 import com.dndn.backend.dndn.domain.application.domain.Application;
 import com.dndn.backend.dndn.domain.application.domain.enums.ReceiveStatus;
 import com.dndn.backend.dndn.domain.application.domain.repository.ApplicationRepository;
+import com.dndn.backend.dndn.domain.application.exception.ApplicationException;
 import com.dndn.backend.dndn.domain.user.domain.entity.User;
 import com.dndn.backend.dndn.domain.user.domain.repository.UserRepository;
 import com.dndn.backend.dndn.domain.welfare.domain.Welfare;
 import com.dndn.backend.dndn.domain.welfare.domain.repository.WelfareRepository;
+import com.dndn.backend.dndn.global.error.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +32,15 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public ApplicationCreateResDto createApplication(Long welfareId, Long userId, ApplicationCreateReqDto request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. userId=" + userId));
+                .orElseThrow(() -> new ApplicationException(ErrorStatus._USER_NOT_FOUND));
 
         Welfare welfare = welfareRepository.findById(welfareId)
-                .orElseThrow(() -> new IllegalArgumentException("복지 정보를 찾을 수 없습니다. welfareId=" + welfareId));
+                .orElseThrow(() -> new ApplicationException(ErrorStatus._WELFARE_NOT_FOUND));
+
+        // 중복 신청 방지
+        if (applicationRepository.existsByUser_IdAndWelfare_Id(userId, welfareId)) {
+            throw new ApplicationException(ErrorStatus.APPLICATION_DUPLICATED);
+        }
 
         Application application = Application.builder()
                 .user(user)
@@ -49,6 +56,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     @Transactional(readOnly = true)
     public ApplicationListResDto getApplications(Long userId, ReceiveStatus status) {
+        if (!userRepository.existsById(userId)) {
+            throw new ApplicationException(ErrorStatus._USER_NOT_FOUND);
+        }
+
         List<Application> applications = applicationRepository.findAllWithWelfareByUserAndStatus(userId, status);
 
         List<ApplicationInfoResDto> applicationInfoResDtoList = applications.stream()
@@ -58,11 +69,16 @@ public class ApplicationServiceImpl implements ApplicationService {
         return ApplicationListResDto.from(applicationInfoResDtoList);
     }
 
+    // 혜택 수령 완료 처리
     @Override
     @Transactional
     public void updateReceived(Long applicationId, Long userId) {
-        Application application = applicationRepository.findByIdAndUser_Id(applicationId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("신청 내역이 없거나 소유자가 아닙니다. applicationId=" + applicationId));
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationException(ErrorStatus.APPLICATION_NOT_FOUND));
+
+        if (!application.getUser().getId().equals(userId)) {
+            throw new ApplicationException(ErrorStatus.APPLICATION_FORBIDDEN);
+        }
 
         application.updateReceiveStatus();
     }

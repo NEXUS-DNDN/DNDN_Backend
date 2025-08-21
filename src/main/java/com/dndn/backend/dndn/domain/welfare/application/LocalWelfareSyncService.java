@@ -102,7 +102,7 @@ public class LocalWelfareSyncService {
                     welfareRepository.save(Welfare.builder()
                             .servId(servId)
                             .title(nzOr(detail.getServNm(), item.getServNm(), "제목 미제공"))
-                            .summary(detail.getServDgst())
+                            .summary(nzOr(detail.getServDgst(), "요약 미제공"))
                             .content(nzOr(detail.getAlwServCn(), "내용 미제공"))
                             .servLink(nz(item.getServDtlLink()))
                             .imageUrl(null)

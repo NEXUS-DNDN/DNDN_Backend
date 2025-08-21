@@ -114,6 +114,7 @@ public class CentralWelfareSyncService {
                                 eligible,
                                 submit
                         );
+
                         updated = true;
                     }
 

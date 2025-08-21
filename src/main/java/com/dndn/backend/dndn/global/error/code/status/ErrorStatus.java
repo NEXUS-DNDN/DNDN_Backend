@@ -20,8 +20,18 @@ public enum ErrorStatus implements BaseErrorCode{
     _INVALID_INFO_CHANGE(HttpStatus.BAD_REQUEST,"USER4003","유효하지 않은 사용자 입력입니다."),
     NO_SUCH_LOGIN_TYPE(HttpStatus.BAD_REQUEST, "USER_4004", "지원하지 않는 로그인 타입입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN_4001", "유효하지 않은 refreshToken입니다."),
-    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN_4002", "유효하지 않은 accessToken입니다.");
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "TOKEN_4002", "유효하지 않은 accessToken입니다."),
 
+    // Welfare
+    _WELFARE_NOT_FOUND(HttpStatus.NOT_FOUND, "WELFARE4001", "존재하지 않는 복지 서비스입니다."),
+
+    //Interest
+    INTEREST_INVALID_STATUS(HttpStatus.BAD_REQUEST, "INTEREST4001", "interestStatus는 [true,false,all] 중 하나여야 합니다."),
+
+    // Application
+    APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "APPLICATION4001", "존재하지 않는 신청 내역입니다."),
+    APPLICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "APPLICATION4031", "해당 신청 내역에 접근 권한이 없습니다."),
+    APPLICATION_DUPLICATED(HttpStatus.CONFLICT, "APPLICATION4091", "이미 신청된 복지입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

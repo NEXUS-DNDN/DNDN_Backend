@@ -40,19 +40,13 @@ public class CentralWelfareSyncService {
             CentralListResDto list = centralClient.getWelfareList(page, numOfRows);
             log.info("[동기화] {}페이지 응답 도착", page);
 
-            if (list == null) { log.warn("centralListResDto == null"); break; }
-            // 목록 성공 코드 확인(운영 응답은 "0" 또는 "00" 케이스가 있으므로 둘 다 허용)
-            if (list.getResultCode() != null && !("0".equals(list.getResultCode()) || "00".equals(list.getResultCode()))) {
-                log.warn("목록 실패 code={}, msg={}", list.getResultCode(), list.getResultMessage());
-                break;
-            }
-
-            List<CentralListResDto.ServiceItem> items = list.getServList();
-            if (items == null || items.isEmpty()) {
+            // ✅ 지자체 스타일: null 또는 리스트 비었으면 종료
+            if (list == null || list.getServList() == null || list.getServList().isEmpty()) {
                 log.info("serviceItems 비어있음. 종료");
                 break;
             }
 
+            List<CentralListResDto.ServiceItem> items = list.getServList();
             log.info("[동기화] {}개의 서비스 처리 시작", items.size());
 
             for (CentralListResDto.ServiceItem item : items) {
@@ -60,27 +54,29 @@ public class CentralWelfareSyncService {
                 if (isBlank(servId)) continue;
 
                 CentralDetailResDto dtl = centralClient.getWelfareDetail(servId);
-                if (dtl == null) { log.warn("상세 null (servId={})", servId); continue; }
-                if (dtl.getResultCode() != null && !("0".equals(dtl.getResultCode()) || "00".equals(dtl.getResultCode()))) {
-                    log.warn("상세 실패 (servId={}) code={}, msg={}", servId, dtl.getResultCode(), dtl.getResultMessage());
+                if (dtl == null) {
+                    log.warn("상세 null (servId={})", servId);
                     continue;
                 }
 
-                // ✅ null/blank 안전 추출 + 대체값
+                // ✅ 상세도 resultCode 체크 제거
                 String title    = nzOr(dtl.getServNm(), item.getServNm(), "제목 미제공");
-                String outline  = nzOr(dtl.getWlfareInfoOutlCn(), item.getServDgst(), "내용 미제공"); // ← content 절대 null 금지
+                String outline  = nzOr(dtl.getWlfareInfoOutlCn(), item.getServDgst(), "내용 미제공");
                 String link     = nz(item.getServDtlLink());
                 String eligible = nzOr(dtl.getTgtrDtlCn(), "대상자 정보 미제공");
                 String submit   = nzOr(dtl.getAlwServCn(), "제출서류 정보 미제공");
-                String dept     = nzOr(dtl.getJurMnofNm(), "담당부처 미제공");                 // department
-                String org      = nzOr(dtl.getJurOrgNm(), "담당기관 미제공");                  //
+                String dept     = nzOr(dtl.getJurMnofNm(), "담당부처 미제공");
+                String org      = nzOr(dtl.getJurOrgNm(), "담당기관 미제공");
 
-                // ✅ 카테고리 매핑
+                // 카테고리 매핑
                 List<LifeCycle> lifeCycles     = parseLifeCycles(nz(dtl.getLifeArray()));
                 List<HouseholdType> household  = parseHouseholdTypes(nz(dtl.getTrgterIndvdlArray()));
                 List<InterestTopic> interests  = parseInterestTopics(nz(dtl.getIntrsThemaArray()));
                 Category category = categoryService.findOrCreateCategory(lifeCycles, household, interests);
-                if (category == null) { log.warn("카테고리 null (servId={})", servId); continue; }
+                if (category == null) {
+                    log.warn("카테고리 null (servId={})", servId);
+                    continue;
+                }
 
                 Welfare welfare = welfareRepository.findByServId(servId).orElse(null);
 
@@ -110,15 +106,14 @@ public class CentralWelfareSyncService {
                             !Objects.equals(welfare.getSubmitDocument(), submit)) {
 
                         welfare.update(
-                                title,      // summary
-                                outline,    // content
-                                link,       // servLink
-                                dept,   // department
-                                org,    // org
-                                eligible,   // eligibleUser
-                                submit      // detailInfo (여기에 제출서류 넣음)
+                                title,
+                                outline,
+                                link,
+                                dept,
+                                org,
+                                eligible,
+                                submit
                         );
-
                         updated = true;
                     }
 

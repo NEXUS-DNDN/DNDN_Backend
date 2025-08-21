@@ -56,6 +56,11 @@ public class LocalWelfareSyncService {
                     continue;
                 }
 
+                // ✅ 상세 DTO 값 로그 확인
+                log.info("servId={} servDgst={}", servId, detail.getServDgst());
+                log.info("servId={} basfrmList from API: {}", servId, detail.getBasfrmList());
+                log.info("servId={} aplyDocList from API: {}", servId, detail.getAplyDocList());
+
                 // 카테고리 매핑
                 String lifeSrc  = nzOr(detail.getLifeNmArray(), item.getLifeNmArray());
                 String hhSrc    = nzOr(detail.getTrgterIndvdlNmArray(), item.getTrgterIndvdlNmArray());
@@ -74,15 +79,22 @@ public class LocalWelfareSyncService {
                 LocalDateTime start = parseYmd(detail.getEnfcBgngYmd());
                 LocalDateTime end   = parseYmd(detail.getEnfcEndYmd());
 
-                // 기관 정보 (단일 RelatedInfo 객체 처리)
                 String org = Optional.ofNullable(detail.getInqplCtadrList())
+                        .orElse(List.of())
+                        .stream()
                         .map(LocalDetailResDto.RelatedInfo::getWlfareInfoReldNm)
+                        .filter(s -> s != null && !s.isBlank())
+                        .findFirst() // 여러 개면 첫 번째만 사용
                         .orElse("기관 미제공");
 
-                // 상세 정보 (단일 RelatedInfo 객체 처리)
                 String detailInfo = Optional.ofNullable(detail.getBasfrmList())
+                        .orElse(List.of())
+                        .stream()
                         .map(LocalDetailResDto.RelatedInfo::getWlfareInfoReldCn)
+                        .filter(s -> s != null && !s.isBlank())
+                        .findFirst()
                         .orElse("상세정보 미제공");
+
 
                 Welfare welfare = welfareRepository.findByServId(servId).orElse(null);
 

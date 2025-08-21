@@ -24,6 +24,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             @Param("status") ReceiveStatus status
     );
 
-    Optional<Application> findByIdAndUser_Id(Long id, Long userId);
+    boolean existsByUser_IdAndWelfare_Id(Long userId, Long welfareId);
 }
 

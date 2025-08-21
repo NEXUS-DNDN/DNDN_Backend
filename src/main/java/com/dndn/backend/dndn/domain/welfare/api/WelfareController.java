@@ -34,10 +34,12 @@ public class WelfareController {
             description = "전체 복지 서비스를 조회합니다."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "목록 조회 성공")
+            @ApiResponse(responseCode = "COMMON_200", description = "성공입니다."),
+            @ApiResponse(responseCode = "COMMON500", description = "서버 에러, 관리자에게 문의 바랍니다.")
     })
-    public WelfareListResDto getAllWelfare() {
-        return welfareService.welfareFindAll(1, 100); // paging 값은 예시
+    public BaseResponse<WelfareListResDto> getAllWelfare() {
+        WelfareListResDto res = welfareService.welfareFindAll(1, 100);
+        return BaseResponse.onSuccess(SuccessStatus.OK, res);
     }
 
     // 복지 상세 조회
@@ -47,10 +49,13 @@ public class WelfareController {
             description = "복지 서비스 ID로 상세 정보를 조회합니다."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "상세 조회 성공")
+            @ApiResponse(responseCode = "COMMON_200", description = "성공입니다."),
+            @ApiResponse(responseCode = "WELFARE4001", description = "존재하지 않는 복지 서비스입니다."),
+            @ApiResponse(responseCode = "COMMON500", description = "서버 에러, 관리자에게 문의 바랍니다.")
     })
-    public WelfareDetailResDto getWelfareDetail(@PathVariable("welfare-id") Long welfareId) {
-        return welfareService.welfareFindById(welfareId);
+    public BaseResponse<WelfareDetailResDto> getWelfareDetail(@PathVariable("welfare-id") Long welfareId) {
+        WelfareDetailResDto res = welfareService.welfareFindById(welfareId);
+        return BaseResponse.onSuccess(SuccessStatus.OK, res);
     }
 
     // 복지명 검색
@@ -60,10 +65,13 @@ public class WelfareController {
             description = "복지 서비스 이름(제목)에 포함된 키워드로 검색합니다."
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "검색 성공")
+            @ApiResponse(responseCode = "COMMON_200", description = "성공입니다."),
+            @ApiResponse(responseCode = "COMMON400", description = "잘못된 요청입니다."),
+            @ApiResponse(responseCode = "COMMON500", description = "서버 에러, 관리자에게 문의 바랍니다.")
     })
-    public WelfareListResDto getWelfareByTitle(@RequestParam String title) {
-        return welfareService.welfareFindByTitle(title);
+    public BaseResponse<WelfareListResDto> getWelfareByTitle(@RequestParam String title) {
+        WelfareListResDto res = welfareService.welfareFindByTitle(title);
+        return BaseResponse.onSuccess(SuccessStatus.OK, res);
     }
 
     // 카테고리 검색
@@ -78,14 +86,17 @@ public class WelfareController {
                     """
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "검색 성공")
+            @ApiResponse(responseCode = "COMMON_200", description = "성공입니다."),
+            @ApiResponse(responseCode = "COMMON400", description = "잘못된 요청입니다."),
+            @ApiResponse(responseCode = "COMMON500", description = "서버 에러, 관리자에게 문의 바랍니다.")
     })
-    public WelfareListResDto getByCategory(
+    public BaseResponse<WelfareListResDto> getByCategory(
             @RequestParam LifeCycle lifeCycle,
             @RequestParam(required = false) List<HouseholdType> householdTypes,
             @RequestParam(required = false) List<InterestTopic> interestTopics
     ) {
-        return welfareService.welfareFindByCategory(lifeCycle, householdTypes, interestTopics);
+        WelfareListResDto res = welfareService.welfareFindByCategory(lifeCycle, householdTypes, interestTopics);
+        return BaseResponse.onSuccess(SuccessStatus.OK, res);
     }
 
     @GetMapping("/recommendation")

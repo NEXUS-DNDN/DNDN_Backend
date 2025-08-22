@@ -6,10 +6,14 @@ import com.dndn.backend.dndn.domain.user.domain.entity.User;
 import com.dndn.backend.dndn.domain.user.dto.*;
 import com.dndn.backend.dndn.domain.user.service.UserService;
 import com.dndn.backend.dndn.global.common.response.BaseResponse;
+import com.dndn.backend.dndn.global.config.security.auth.UserPrincipal;
 import com.dndn.backend.dndn.global.error.code.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -20,11 +24,18 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    @Operation(summary = "사용자 등록", description = "사용자의 기본 정보를 등록합니다.")
-    public BaseResponse<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO dto) {
+    @Operation(
+            summary = "신규 사용자 정보 등록",
+            description = "로그인 후 생성 된 jwt accesstoken을 헤더에 삽입하고, 사용자 정보는 requestbody를 통해 넘겨주세요.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "USER_4001", description = "유저가 존재하지 않습니다.")
+    })
+    public BaseResponse<UserResponseDTO> createUser(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestBody @Valid UserRequestDTO dto) {
         return BaseResponse.onSuccess(
                 SuccessStatus.OK,
-                UserResponseDTO.from(userService.createUser(dto))
+                UserResponseDTO.from(userService.createUser(dto, principal.getId()))
         );
     }
 

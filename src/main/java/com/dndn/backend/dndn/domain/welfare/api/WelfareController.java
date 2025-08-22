@@ -98,6 +98,7 @@ public class WelfareController {
     ) {
         WelfareListResDto res = welfareService.welfareFindByCategory(lifeCycle, householdTypes, interestTopics);
         return BaseResponse.onSuccess(SuccessStatus.OK, res);
+
     }
 
     // 검색어 + 카테고리 복지 서비스 목록 조회
@@ -122,6 +123,7 @@ public class WelfareController {
     ) {
         WelfareListResDto res = welfareService.welfareSearch(keyword, lifeCycle, householdTypes, interestTopics);
         return BaseResponse.onSuccess(SuccessStatus.OK, res);
+
     }
 
     @GetMapping("/recommendation")

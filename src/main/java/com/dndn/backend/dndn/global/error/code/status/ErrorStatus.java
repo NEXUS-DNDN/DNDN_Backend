@@ -26,7 +26,12 @@ public enum ErrorStatus implements BaseErrorCode{
     _WELFARE_NOT_FOUND(HttpStatus.NOT_FOUND, "WELFARE4001", "존재하지 않는 복지 서비스입니다."),
 
     //Interest
-    INTEREST_INVALID_STATUS(HttpStatus.BAD_REQUEST, "INTEREST4001", "interestStatus는 [true,false,all] 중 하나여야 합니다.");
+    INTEREST_INVALID_STATUS(HttpStatus.BAD_REQUEST, "INTEREST4001", "interestStatus는 [true,false,all] 중 하나여야 합니다."),
+
+    // Application
+    APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "APPLICATION4001", "존재하지 않는 신청 내역입니다."),
+    APPLICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "APPLICATION4031", "해당 신청 내역에 접근 권한이 없습니다."),
+    APPLICATION_DUPLICATED(HttpStatus.CONFLICT, "APPLICATION4091", "이미 신청된 복지입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

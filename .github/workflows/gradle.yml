@@ -40,7 +40,7 @@ jobs:
         run: |
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
             chmod +x /home/ubuntu/app/zip/*.sh
-            /home/ubuntu/app/zip/start.sh
-            /home/ubuntu/app/zip/health_check.sh
             /home/ubuntu/app/zip/stop.sh
+            /home/ubuntu/app/zip/start.sh
+            /home/ubuntu/app/zip/switch.sh
           EOF

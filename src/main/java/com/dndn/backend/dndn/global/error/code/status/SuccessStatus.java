@@ -23,7 +23,8 @@ public enum SuccessStatus implements BaseCode{
 
     // Application
     APPLICATION_CREATED(HttpStatus.CREATED, "APPLICATION_201", "신청이 완료 되었습니다."),
-    APPLICATION_RECEIVED_UPDATED(HttpStatus.NO_CONTENT, "APPLICATION_204", "수령 상태 업데이트 성공");
+    APPLICATION_RECEIVED_UPDATED(HttpStatus.NO_CONTENT, "APPLICATION_204", "수령 상태 업데이트 성공"),
+    APPLICATION_DELETED(HttpStatus.NO_CONTENT, "APPLICATION_205", "신청 내역이 삭제되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

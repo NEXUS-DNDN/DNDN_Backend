@@ -1,6 +1,5 @@
 package com.dndn.backend.dndn.domain.welfare.application;
 
-import com.dndn.backend.dndn.domain.category.domain.Category;
 import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
 import com.dndn.backend.dndn.domain.category.domain.enums.InterestTopic;
 import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
@@ -18,11 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 @RequiredArgsConstructor
@@ -77,6 +72,37 @@ public class WelfareServiceImpl implements WelfareService {
 
         List<Welfare> result = welfareRepository.findByCategoryFilters(
                 lifeCycle, hh, householdsEmpty, it, interestsEmpty
+        );
+
+        List<WelfareInfoResDto> dtoList = result.stream()
+                .map(WelfareInfoResDto::from)
+                .toList();
+
+        return WelfareListResDto.from(dtoList);
+    }
+
+    // 검색어 + 카테고리 복지 서비스 목록 조회
+    @Override
+    public WelfareListResDto welfareSearch(
+            String keyword,
+            LifeCycle lifeCycle,
+            List<HouseholdType> householdTypes,
+            List<InterestTopic> interestTopics
+    ) {
+        if (lifeCycle == null || keyword == null || keyword.isBlank()) {
+            throw new WelfareException(ErrorStatus._BAD_REQUEST); // 프로젝트 공통 에러코드에 맞춰 사용
+        }
+
+        List<HouseholdType> hh = (householdTypes == null) ? Collections.emptyList() : householdTypes;
+        List<InterestTopic> it = (interestTopics == null) ? Collections.emptyList() : interestTopics;
+
+        boolean householdsEmpty = hh.isEmpty();
+        boolean interestsEmpty  = it.isEmpty();
+
+        List<Welfare> result = welfareRepository.searchByKeywordAndCategory(
+                keyword.trim(), lifeCycle,
+                hh, householdsEmpty,
+                it, interestsEmpty
         );
 
         List<WelfareInfoResDto> dtoList = result.stream()

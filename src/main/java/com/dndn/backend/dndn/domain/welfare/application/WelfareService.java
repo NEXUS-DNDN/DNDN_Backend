@@ -28,6 +28,14 @@ public interface WelfareService {
             List<InterestTopic> interestTopics
     );
 
+    // 검색어 + 카테고리 복지 서비스 목록 조회
+
+    WelfareListResDto welfareSearch(
+            String keyword, LifeCycle lifeCycle,
+            List<HouseholdType> householdTypes,
+            List<InterestTopic> interestTopics
+    );
+
     // 복지 추천 로직
     List<Welfare> getRecommendedWelfares(User user);
 }

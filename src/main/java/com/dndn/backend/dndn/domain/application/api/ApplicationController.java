@@ -5,13 +5,13 @@ import com.dndn.backend.dndn.domain.application.api.dto.response.ApplicationCrea
 import com.dndn.backend.dndn.domain.application.api.dto.response.ApplicationListResDto;
 import com.dndn.backend.dndn.domain.application.application.ApplicationService;
 import com.dndn.backend.dndn.domain.application.domain.enums.ReceiveStatus;
+import com.dndn.backend.dndn.global.common.response.BaseResponse;
+import com.dndn.backend.dndn.global.error.code.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,15 +33,21 @@ public class ApplicationController {
                     """
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "신청 성공")
+            // 성공
+            @ApiResponse(responseCode = "APPLICATION_201", description = "신청이 완료 되었습니다."),
+            // 표준 HTTP 상태 기반 에러들 (도메인/공통)
+            @ApiResponse(responseCode = "USER4001", description = "존재하지 않는 사용자입니다."),
+            @ApiResponse(responseCode = "WELFARE4001", description = "존재하지 않는 복지 서비스입니다."),
+            @ApiResponse(responseCode = "APPLICATION4091", description = "이미 신청된 복지입니다."),
+            @ApiResponse(responseCode = "COMMON401", description = "인증이 필요합니다.")
     })
-    public ResponseEntity<ApplicationCreateResDto> createApplication(
+    public BaseResponse<ApplicationCreateResDto> createApplication(
             @PathVariable("welfare-id") Long welfareId,
             @Valid @RequestBody ApplicationCreateReqDto request,
             @AuthenticationPrincipal(expression = "id") Long userId
     ) {
         ApplicationCreateResDto res = applicationService.createApplication(welfareId, userId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+        return BaseResponse.onSuccess(SuccessStatus.APPLICATION_CREATED, res);
     }
 
     // 신청/혜택 수령 완료 목록 조회
@@ -55,9 +61,11 @@ public class ApplicationController {
                     """
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "목록 조회 성공")
+            @ApiResponse(responseCode = "COMMON_200", description = "성공입니다."),
+            @ApiResponse(responseCode = "USER4001", description = "존재하지 않는 사용자입니다."),
+            @ApiResponse(responseCode = "COMMON401", description = "인증이 필요합니다.")
     })
-    public ResponseEntity<ApplicationListResDto> getApplications(
+    public BaseResponse<ApplicationListResDto> getApplications(
             @RequestParam(name = "tab", defaultValue = "applied") String tab,
             @AuthenticationPrincipal(expression = "id") Long userId
     ) {
@@ -66,7 +74,7 @@ public class ApplicationController {
                 : ReceiveStatus.NOT_RECEIVED;
 
         ApplicationListResDto res = applicationService.getApplications(userId, status);
-        return ResponseEntity.ok(res);
+        return BaseResponse.onSuccess(SuccessStatus.OK, res);
     }
 
     // 혜택 수령 완료 처리
@@ -77,12 +85,17 @@ public class ApplicationController {
                     사용자가 신청한 복지 서비스의 혜택 수령을 완료 상태로 변경합니다.
                     """
     )
-    public ResponseEntity<Void> markAsReceived(
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "APPLICATION_204", description = "수령 상태 업데이트 성공"),
+            @ApiResponse(responseCode = "APPLICATION4001", description = "존재하지 않는 신청 내역입니다."),
+            @ApiResponse(responseCode = "APPLICATION4031", description = "해당 신청 내역에 접근 권한이 없습니다.")
+    })
+    public BaseResponse<Void> markAsReceived(
             @PathVariable Long applicationId,
             @AuthenticationPrincipal(expression = "id") Long userId
     ) {
         applicationService.updateReceived(applicationId, userId);
-        return ResponseEntity.noContent().build();
+        return BaseResponse.onSuccess(SuccessStatus.APPLICATION_RECEIVED_UPDATED, null);
     }
 
 

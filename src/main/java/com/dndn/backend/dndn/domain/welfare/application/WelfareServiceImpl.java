@@ -11,7 +11,9 @@ import com.dndn.backend.dndn.domain.welfare.api.response.WelfareListResDto;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareInfoResDto;
 import com.dndn.backend.dndn.domain.welfare.domain.Welfare;
 import com.dndn.backend.dndn.domain.welfare.domain.repository.WelfareRepository;
+import com.dndn.backend.dndn.domain.welfare.exception.WelfareException;
 import com.dndn.backend.dndn.domain.welfare.support.WelfareWithScore;
+import com.dndn.backend.dndn.global.error.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +47,7 @@ public class WelfareServiceImpl implements WelfareService {
     @Override
     public WelfareDetailResDto welfareFindById(Long welfareId) {
         Welfare welfare = welfareRepository.findById(welfareId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 복지 서비스를 찾을 수 없습니다."));
+                .orElseThrow(() -> new WelfareException(ErrorStatus._WELFARE_NOT_FOUND));
         return WelfareDetailResDto.of(welfare);
     }
 

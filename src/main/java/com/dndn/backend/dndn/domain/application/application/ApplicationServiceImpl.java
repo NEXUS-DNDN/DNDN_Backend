@@ -83,4 +83,23 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.updateReceiveStatus();
     }
 
+    // 신청/혜택 내역 삭제
+    @Override
+    @Transactional
+    public void deleteReceived(Long applicationId, Long userId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationException(ErrorStatus.APPLICATION_NOT_FOUND));
+
+        if (!application.getUser().getId().equals(userId)) {
+            throw new ApplicationException(ErrorStatus.APPLICATION_FORBIDDEN);
+        }
+
+        // 수령 완료(RECEIVED) 상태인지 확인
+        if (application.getReceiveStatus() != ReceiveStatus.RECEIVED) {
+            throw new ApplicationException(ErrorStatus.APPLICATION_DELETE_NOT_ALLOWED);
+        }
+
+        applicationRepository.delete(application);
+    }
+
 }

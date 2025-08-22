@@ -22,4 +22,7 @@ public interface ApplicationService {
     // 혜택 수령 완료 처리
     void updateReceived(Long applicationId, Long userId);
 
+    // 혜택 내역 삭제
+    void deleteReceived(Long applicationId, Long userId);
+
 }

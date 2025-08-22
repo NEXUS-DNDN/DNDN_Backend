@@ -98,5 +98,29 @@ public class ApplicationController {
         return BaseResponse.onSuccess(SuccessStatus.APPLICATION_RECEIVED_UPDATED, null);
     }
 
+    // 신청/혜택 내역 삭제
+    @DeleteMapping("/{applicationId}")
+    @Operation(
+            summary = "수령 완료 내역 삭제",
+            description = """
+                사용자가 신청한 복지 서비스 중 
+                수령 완료(RECEIVED) 상태의 내역만 삭제할 수 있습니다.
+                """
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "APPLICATION_205", description = "삭제 성공"),
+            @ApiResponse(responseCode = "APPLICATION4002", description = "수령 완료 상태에서만 삭제할 수 있습니다."),
+            @ApiResponse(responseCode = "APPLICATION4031", description = "해당 신청 내역에 접근 권한이 없습니다."),
+            @ApiResponse(responseCode = "APPLICATION4001", description = "존재하지 않는 신청 내역입니다."),
+            @ApiResponse(responseCode = "COMMON401", description = "인증이 필요합니다.")
+    })
+    public BaseResponse<Void> deleteReceived(
+            @PathVariable Long applicationId,
+            @AuthenticationPrincipal(expression = "id") Long userId
+    ) {
+        applicationService.deleteReceived(applicationId, userId);
+        return BaseResponse.onSuccess(SuccessStatus.APPLICATION_DELETED, null);
+    }
+
 
 }

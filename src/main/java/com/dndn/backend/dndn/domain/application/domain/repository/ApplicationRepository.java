@@ -25,5 +25,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     );
 
     boolean existsByUser_IdAndWelfare_Id(Long userId, Long welfareId);
+
+    int deleteByIdAndUser_IdAndReceiveStatus(Long id, Long userId, ReceiveStatus status);
 }
 

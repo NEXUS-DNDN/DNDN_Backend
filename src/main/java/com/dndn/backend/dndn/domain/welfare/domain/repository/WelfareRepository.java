@@ -36,4 +36,28 @@ public interface WelfareRepository extends JpaRepository<Welfare, Long> {
             @Param("interests") List<InterestTopic> interests,
             @Param("interestsEmpty") boolean interestsEmpty
     );
+
+    @Query("""
+    select distinct w
+    from Welfare w
+    join w.category c
+    join c.lifeCycles lc
+    left join c.householdTypes hh
+    left join c.interestTopics it
+    where (
+        lower(coalesce(w.title, '')) like concat('%', lower(:keyword), '%')
+        or lower(concat(coalesce(w.content, ''), '')) like concat('%', lower(:keyword), '%')
+    )
+    and lc = :lifeCycle
+    and (:householdsEmpty = true or hh in :households)
+    and (:interestsEmpty = true or it in :interests)
+    """)
+    List<Welfare> searchByKeywordAndCategory(
+            @Param("keyword") String keyword,
+            @Param("lifeCycle") LifeCycle lifeCycle,
+            @Param("households") List<HouseholdType> households,
+            @Param("householdsEmpty") boolean householdsEmpty,
+            @Param("interests") List<InterestTopic> interests,
+            @Param("interestsEmpty") boolean interestsEmpty
+    );
 }

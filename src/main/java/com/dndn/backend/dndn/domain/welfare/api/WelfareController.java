@@ -14,6 +14,7 @@ import com.dndn.backend.dndn.global.error.code.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -96,6 +97,30 @@ public class WelfareController {
             @RequestParam(required = false) List<InterestTopic> interestTopics
     ) {
         WelfareListResDto res = welfareService.welfareFindByCategory(lifeCycle, householdTypes, interestTopics);
+        return BaseResponse.onSuccess(SuccessStatus.OK, res);
+    }
+
+    // 검색어 + 카테고리 복지 서비스 목록 조회
+    @GetMapping("/search/filter")
+    @Operation(
+            summary = "검색어 + 카테고리 통합 검색",
+            description = """
+            검색어(keyword)와 lifeCycle을 필수로 받아서 1차 필터링 후,
+            householdTypes / interestTopics를 선택적으로 추가 필터링합니다.
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "COMMON_200", description = "성공입니다."),
+            @ApiResponse(responseCode = "COMMON400", description = "잘못된 요청입니다."),
+            @ApiResponse(responseCode = "COMMON500", description = "서버 에러, 관리자에게 문의 바랍니다.")
+    })
+    public BaseResponse<WelfareListResDto> searchWithFilters(
+            @RequestParam @NotBlank String keyword,
+            @RequestParam LifeCycle lifeCycle,
+            @RequestParam(required = false) List<HouseholdType> householdTypes,
+            @RequestParam(required = false) List<InterestTopic> interestTopics
+    ) {
+        WelfareListResDto res = welfareService.welfareSearch(keyword, lifeCycle, householdTypes, interestTopics);
         return BaseResponse.onSuccess(SuccessStatus.OK, res);
     }
 

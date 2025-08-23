@@ -1,5 +1,6 @@
 package com.dndn.backend.dndn.global.exception;
 
+import com.dndn.backend.dndn.domain.user.exception.DocumentException;
 import com.dndn.backend.dndn.global.common.response.BaseResponse;
 import com.dndn.backend.dndn.global.error.code.status.BaseErrorCode;
 import com.dndn.backend.dndn.global.error.code.status.ErrorStatus;
@@ -119,6 +120,13 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
             GeneralException generalException, HttpServletRequest request) {
         return handleExceptionInternal(generalException, generalException.getCode(), null, request);
     }
+
+    // 파일 업로드 예외 처리
+    @ExceptionHandler(DocumentException.class)
+    public ResponseEntity<Object> handleFileException(DocumentException e, HttpServletRequest request) {
+        return handleExceptionInternal(e, e.getCode(), null, request);
+    }
+
 
     // 나머지 헬퍼 메소드들
     private ResponseEntity<Object> handleExceptionInternal(

@@ -23,32 +23,21 @@ import static com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle.SENIO
 
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @Builder
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
 
-    public User createUser(UserRequestDTO dto){
 
+    @Transactional
+    public User createUser(UserRequestDTO dto, Long userId){
 
-        User user = User.builder()
-                .name(dto.getName())
-                .phoneNumber(dto.getPhoneNumber())
-                .birthday(dto.getBirthday())
-                .address(dto.getAddress())
-                .householdNumber(dto.getHouseholdNumber())
-                .monthlyIncome(dto.getMonthlyIncome())
-                .gender(dto.getGender())
-                .family(dto.getFamily())
-                .employment(dto.getEmployment())
-                .lifeCycle(dto.getLifeCycle())
-                .build();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
-        user.getHouseholdTypes().addAll(dto.getHouseholdTypes());
-
-        userRepository.save(user);
+        user.registerInfo(dto);
 
         return user;
     }
@@ -59,6 +48,7 @@ public class UserService {
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
     }
 
+    @Transactional
     public Senior registerSeniorInfo(Long userId, SeniorRequestDTO dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
@@ -77,6 +67,7 @@ public class UserService {
         return info;
     }
 
+    @Transactional
     public Disabled registerDisabledInfo(Long userId, DisabledRequestDTO dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
@@ -125,6 +116,7 @@ public class UserService {
         return user.getDisabledInfo();
     }
 
+    @Transactional
     public User updateUser(Long userId, UserUpdateRequestDTO dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));

@@ -4,6 +4,7 @@ import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
 import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import com.dndn.backend.dndn.domain.model.entity.BaseEntity;
 import com.dndn.backend.dndn.domain.model.enums.*;
+import com.dndn.backend.dndn.domain.user.dto.UserRequestDTO;
 import com.dndn.backend.dndn.domain.user.dto.UserUpdateRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -108,6 +109,25 @@ public class User extends BaseEntity {
 
     //프로필 사진
     private String profileUrl;
+
+    public User registerInfo(UserRequestDTO dto) {
+        this.name = dto.getName();
+        this.phoneNumber = dto.getPhoneNumber();
+        this.birthday = dto.getBirthday();
+        this.address = dto.getAddress();
+        this.householdNumber = dto.getHouseholdNumber();
+        this.monthlyIncome = dto.getMonthlyIncome();
+        this.gender = dto.getGender();
+        this.family = dto.getFamily();
+        this.employment = dto.getEmployment();
+        this.lifeCycle = dto.getLifeCycle();
+
+        this.householdTypes.clear(); // 기존 값 초기화
+        this.householdTypes.addAll(dto.getHouseholdTypes());
+
+        return this;
+    }
+
 
     public User updateInfo(UserUpdateRequestDTO dto) {
         this.name = dto.getName();

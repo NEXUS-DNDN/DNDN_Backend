@@ -2,10 +2,12 @@ package com.dndn.backend.dndn.domain.application.api.dto.response;
 
 import com.dndn.backend.dndn.domain.application.domain.Application;
 import com.dndn.backend.dndn.domain.application.domain.enums.ReceiveStatus;
+import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record ApplicationInfoResDto(
@@ -18,7 +20,9 @@ public record ApplicationInfoResDto(
         LocalDate appliedAt,
         LocalDateTime endDate,
         ReceiveStatus receiveStatus,
-        String servLink
+        String servLink,
+        List<LifeCycle> lifeCycles,
+        String summary
 ) {
     public static ApplicationInfoResDto of(Application application) {
         return ApplicationInfoResDto.builder()
@@ -32,6 +36,8 @@ public record ApplicationInfoResDto(
                 .endDate(application.getWelfare().getEndDate())
                 .receiveStatus(application.getReceiveStatus())
                 .servLink(application.getWelfare().getServLink())
+                .lifeCycles(application.getWelfare().getCategory().getLifeCycles())
+                .summary(application.getWelfare().getSummary())
                 .build();
     }
 }

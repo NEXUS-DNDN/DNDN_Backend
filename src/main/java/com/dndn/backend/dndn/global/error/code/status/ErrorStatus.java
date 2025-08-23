@@ -31,7 +31,8 @@ public enum ErrorStatus implements BaseErrorCode{
     // Application
     APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "APPLICATION4001", "존재하지 않는 신청 내역입니다."),
     APPLICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "APPLICATION4031", "해당 신청 내역에 접근 권한이 없습니다."),
-    APPLICATION_DUPLICATED(HttpStatus.CONFLICT, "APPLICATION4091", "이미 신청된 복지입니다.");
+    APPLICATION_DUPLICATED(HttpStatus.CONFLICT, "APPLICATION4091", "이미 신청된 복지입니다."),
+    APPLICATION_DELETE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "APPLICATION4002", "수령 완료 상태에서만 삭제할 수 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -32,7 +32,7 @@ public class InterestController {
                     """
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "COMMON_200", description = "성공"),
+            @ApiResponse(responseCode = "INTEREST_200", description = "관심 상태가 성공적으로 업데이트되었습니다."),
             @ApiResponse(responseCode = "USER4001", description = "존재하지 않는 사용자입니다."),
             @ApiResponse(responseCode = "WELFARE4001", description = "존재하지 않는 복지 서비스입니다."),
             @ApiResponse(responseCode = "COMMON400", description = "잘못된 요청입니다."),
@@ -62,7 +62,7 @@ public class InterestController {
                     """
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "INTEREST_200", description = "관심 상태가 성공적으로 업데이트되었습니다."),
+            @ApiResponse(responseCode = "COMMON_200", description = "성공"),
             @ApiResponse(responseCode = "USER4001", description = "존재하지 않는 사용자입니다."),
             @ApiResponse(responseCode = "COMMON400", description = "잘못된 요청입니다.")
     })

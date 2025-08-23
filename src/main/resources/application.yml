@@ -19,7 +19,7 @@ spring:
     kakao:
       client-id: ${KAKAO_CLIENT_ID}
       js-key: ${KAKAO_JS_KEY}
-      redirect-uri: http://nexusdndn.duckdns.org/login/oauth/kakao
+      redirect-uri: http://localhost:8080/login/oauth/kakao
       token-uri: https://kauth.kakao.com/oauth/token
       user-info-uri: https://kapi.kakao.com/v2/user/me
 
@@ -77,3 +77,4 @@ minio:
   url: ${MINIO_URL}
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
+  bucket: dndn-documents

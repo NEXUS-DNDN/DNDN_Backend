@@ -65,10 +65,6 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private GenderType gender;
 
-    // 가족 유형
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private FamilyType family;
 
     // 고용 형태
     @Enumerated(EnumType.STRING)
@@ -118,7 +114,6 @@ public class User extends BaseEntity {
         this.householdNumber = dto.getHouseholdNumber();
         this.monthlyIncome = dto.getMonthlyIncome();
         this.gender = dto.getGender();
-        this.family = dto.getFamily();
         this.employment = dto.getEmployment();
         this.lifeCycle = dto.getLifeCycle();
 
@@ -136,7 +131,6 @@ public class User extends BaseEntity {
         this.householdNumber = dto.getHouseholdNumber();
         this.monthlyIncome = dto.getMonthlyIncome();
         this.gender = dto.getGender();
-        this.family = dto.getFamily();
         this.employment = dto.getEmployment();
         this.lifeCycle = dto.getLifeCycle();
         this.householdTypes = dto.getHouseholdTypes();

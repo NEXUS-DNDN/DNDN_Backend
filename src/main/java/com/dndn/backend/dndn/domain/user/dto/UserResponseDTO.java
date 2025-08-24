@@ -23,7 +23,6 @@ public class UserResponseDTO {
     private int householdNumber;
     private IncomeRange monthlyIncome;
     private GenderType gender;
-    private FamilyType family;
     private EmploymentType employment;
     private LifeCycle lifeCycle;
     private Set<HouseholdType> householdTypes;
@@ -39,7 +38,6 @@ public class UserResponseDTO {
                 .householdNumber(user.getHouseholdNumber())
                 .monthlyIncome(user.getMonthlyIncome())
                 .gender(user.getGender())
-                .family(user.getFamily())
                 .employment(user.getEmployment())
                 .lifeCycle(user.getLifeCycle())
                 .householdTypes(user.getHouseholdTypes())

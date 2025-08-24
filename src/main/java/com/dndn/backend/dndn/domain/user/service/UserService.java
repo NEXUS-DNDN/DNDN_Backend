@@ -69,7 +69,7 @@ public class UserService {
 
     @Transactional
     public Disabled registerDisabledInfo(Long userId, DisabledRequestDTO dto) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findWithAllAdditionalInfoById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
         boolean isDisabled = user.getHouseholdTypes().stream()
@@ -92,7 +92,7 @@ public class UserService {
 
 
     public Senior getSeniorInfo(Long userId) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findWithAllAdditionalInfoById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
         if (user.getLifeCycle() != SENIOR) {
@@ -103,7 +103,7 @@ public class UserService {
     }
 
     public Disabled getDisabledInfo(Long userId) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findWithAllAdditionalInfoById(userId)
                 .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
 
         boolean isDisabled = user.getHouseholdTypes().stream()

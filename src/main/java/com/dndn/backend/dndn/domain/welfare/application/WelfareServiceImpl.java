@@ -114,7 +114,7 @@ public class WelfareServiceImpl implements WelfareService {
 
     @Override
     public List<Welfare> getRecommendedWelfares(User user) {
-        List<Welfare> all = welfareRepository.findAll();
+        List<Welfare> all = welfareRepository.findAllWithCategory();
 
         return all.stream()
                 .map(w -> new WelfareWithScore(w, calculateScore(user, w)))

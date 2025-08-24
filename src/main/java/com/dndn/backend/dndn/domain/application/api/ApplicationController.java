@@ -122,5 +122,29 @@ public class ApplicationController {
         return BaseResponse.onSuccess(SuccessStatus.APPLICATION_DELETED, null);
     }
 
+    // 수령상태 수령 전으로 되돌리기
+    @PatchMapping("/applications/{applicationId}/receive/revert")
+    @Operation(
+            summary = "혜택 수령 상태 '수령 전'으로 되돌리기",
+            description = """
+                수령 완료(RECEIVED) 상태인 신청 내역을 수령 전(NOT_RECEIVED)으로 되돌립니다.
+                (본인 소유 + 현재 RECEIVED 상태인 경우만 가능)
+                """
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "APPLICATION_206", description = "수령 상태 되돌리기 성공"),
+            @ApiResponse(responseCode = "APPLICATION4003", description = "수령 완료 상태에서만 되돌릴 수 있습니다."),
+            @ApiResponse(responseCode = "APPLICATION4031", description = "해당 신청 내역에 접근 권한이 없습니다."),
+            @ApiResponse(responseCode = "APPLICATION4001", description = "존재하지 않는 신청 내역입니다."),
+            @ApiResponse(responseCode = "COMMON401", description = "인증이 필요합니다.")
+    })
+    public BaseResponse<Void> revertReceived(
+            @PathVariable Long applicationId,
+            @AuthenticationPrincipal(expression = "id") Long userId
+    ) {
+        applicationService.revertReceived(applicationId, userId);
+        return BaseResponse.onSuccess(SuccessStatus.APPLICATION_RECEIVED_REVERTED, null);
+    }
+
 
 }

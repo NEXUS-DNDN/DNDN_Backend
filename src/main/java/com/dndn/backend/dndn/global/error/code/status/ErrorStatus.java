@@ -33,6 +33,7 @@ public enum ErrorStatus implements BaseErrorCode{
     APPLICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "APPLICATION4031", "해당 신청 내역에 접근 권한이 없습니다."),
     APPLICATION_DUPLICATED(HttpStatus.CONFLICT, "APPLICATION4091", "이미 신청된 복지입니다."),
     APPLICATION_DELETE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "APPLICATION4002", "수령 완료 상태에서만 삭제할 수 있습니다."),
+    APPLICATION_RECEIVE_REVERT_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "APPLICATION4003", "수령 완료 상태에서만 되돌릴 수 있습니다."),
 
     // file
     DOCUMENT_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DOCUMENT4001", "파일 업로드에 실패했습니다."),

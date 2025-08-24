@@ -26,7 +26,6 @@ public class UserRequestDTO {
 
     private IncomeRange monthlyIncome;
     private GenderType gender;
-    private FamilyType family;
     private EmploymentType employment;
 
     @NotNull

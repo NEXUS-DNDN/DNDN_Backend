@@ -102,4 +102,24 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationRepository.delete(application);
     }
 
+    // 수령상태 수령 전으로 되돌리기
+    @Override
+    @Transactional
+    public void revertReceived(Long applicationId, Long userId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationException(ErrorStatus.APPLICATION_NOT_FOUND));
+
+        if (!application.getUser().getId().equals(userId)) {
+            throw new ApplicationException(ErrorStatus.APPLICATION_FORBIDDEN);
+        }
+
+        // 현재 상태가 RECEIVED 일 때만 되돌리기 허용
+        if (application.getReceiveStatus() != ReceiveStatus.RECEIVED) {
+            throw new ApplicationException(ErrorStatus.APPLICATION_RECEIVE_REVERT_NOT_ALLOWED);
+        }
+
+        application.revertReceiveStatus();
+    }
+
+
 }

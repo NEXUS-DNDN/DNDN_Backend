@@ -13,4 +13,10 @@ public class GeneralException extends RuntimeException {
     public ErrorReasonDTO getErrorReasonHttpStatus() {
         return this.code.getReasonHttpStatus();
     }
+
+    // ✅ cause도 받는 생성자 추가
+    public GeneralException(BaseErrorCode code, Throwable cause) {
+        super(code.getReasonHttpStatus().getMessage(), cause);
+        this.code = code;
+    }
 }

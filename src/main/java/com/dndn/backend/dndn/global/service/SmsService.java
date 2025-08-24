@@ -1,0 +1,50 @@
+package com.dndn.backend.dndn.global.service;
+
+import lombok.RequiredArgsConstructor;
+import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import net.nurigo.sdk.message.response.MultipleDetailMessageSentResponse;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
+import net.nurigo.sdk.message.service.DefaultMessageService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class SmsService {
+
+    private final DefaultMessageService messageService;
+
+    @Value("${coolsms.from}")
+    private String from;
+
+//    public void sendVerificationCode(String to, String code) {
+//        Message message = new Message();
+//        message.setFrom(from);
+//        message.setTo(to);
+//        message.setText("[DNDN] 인증번호는 " + code + " 입니다. (3분 이내 입력)");
+//
+//        SingleMessageSentResponse response = messageService.sendOne(new SingleMessageSendingRequest(message));
+//        System.out.println("SMS 발송 결과: " + response);
+//    }
+
+    public void sendVerificationCode(String to, String code) {
+        Message message = new Message();
+        message.setFrom(from);
+        message.setTo(to);
+        message.setText("[DNDN] 인증번호는 " + code + " 입니다. (3분 이내 입력)");
+
+        try {
+            MultipleDetailMessageSentResponse response = messageService.send(message);
+            System.out.println("✅ SMS 발송 결과: " + response);
+        } catch (NurigoMessageNotReceivedException exception) {
+            // 발송에 실패한 메시지 목록을 확인할 수 있습니다!
+            System.out.println(exception.getFailedMessageList());
+            System.out.println(exception.getMessage());
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
+        }
+    }
+
+}

@@ -78,3 +78,10 @@ minio:
   access-key: ${MINIO_ACCESS_KEY}
   secret-key: ${MINIO_SECRET_KEY}
   bucket: dndn-documents
+
+coolsms:
+  api:
+    key: ${COOLSMS_API_KEY}
+    secret: ${COOLSMS_API_SECRET}
+    domain: ${COOLSMS_DOMAIN}
+  from: ${COOLSMS_FROM}

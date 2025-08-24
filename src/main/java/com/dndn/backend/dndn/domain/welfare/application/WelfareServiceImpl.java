@@ -114,12 +114,13 @@ public class WelfareServiceImpl implements WelfareService {
 
     @Override
     public List<Welfare> getRecommendedWelfares(User user) {
-        List<Welfare> all = welfareRepository.findAll();
+        List<Welfare> all = welfareRepository.findAllWithCategory();
 
         return all.stream()
                 .map(w -> new WelfareWithScore(w, calculateScore(user, w)))
                 .filter(w -> w.getScore() > 0) // 지역 조건 불일치 등으로 점수 0이면 제외
                 .sorted(Comparator.comparingDouble(WelfareWithScore::getScore).reversed())
+                .limit(5)
                 .map(WelfareWithScore::getWelfare)
                 .toList();
     }

@@ -3,7 +3,6 @@ package com.dndn.backend.dndn.domain.user.dto;
 import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
 import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import com.dndn.backend.dndn.domain.model.enums.EmploymentType;
-import com.dndn.backend.dndn.domain.model.enums.FamilyType;
 import com.dndn.backend.dndn.domain.model.enums.GenderType;
 import com.dndn.backend.dndn.domain.model.enums.IncomeRange;
 import jakarta.validation.constraints.NotBlank;
@@ -35,9 +34,6 @@ public class UserUpdateRequestDTO {
 
     @NotNull
     private GenderType gender;
-
-    @NotNull
-    private FamilyType family;
 
     @NotNull
     private EmploymentType employment;

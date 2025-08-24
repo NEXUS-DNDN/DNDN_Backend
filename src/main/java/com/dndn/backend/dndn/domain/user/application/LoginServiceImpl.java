@@ -9,6 +9,7 @@ import com.dndn.backend.dndn.domain.user.domain.repository.UserRepository;
 import com.dndn.backend.dndn.domain.user.exception.UserException;
 import com.dndn.backend.dndn.global.config.security.jwt.JwtUtil;
 import com.dndn.backend.dndn.global.error.code.status.ErrorStatus;
+import com.dndn.backend.dndn.global.service.SmsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,54 @@ public class LoginServiceImpl implements LoginService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
+    private final SmsService smsService;
+
+    // 문자 발송
+    @Transactional
+    @Override
+    public void sendVerificationCode(String name, String phone) {
+        User user = userRepository.findByNameAndPhoneNumber(name, phone)
+                .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
+
+        String code = String.valueOf((int)(Math.random() * 900000) + 100000);
+
+        redisTemplate.opsForValue().set("auth:" + phone, code, 3, TimeUnit.MINUTES);
+
+        try {
+            smsService.sendVerificationCode(phone, code);
+        } catch (Exception e) {
+            throw new UserException(ErrorStatus.SMS_SEND_FAILED);
+        }
+    }
+
+
+    // 인증번호 검증 + JWT 발급
+    @Transactional
+    @Override
+    public AuthResponseDTO.PhoneLoginResult verifyCodeAndLogin(String phone, String code) {
+        String cachedCode = redisTemplate.opsForValue().get("auth:" + phone);
+
+        if (cachedCode == null || !cachedCode.equals(code)) {
+            throw new UserException(ErrorStatus.INVALID_ACCESS_TOKEN);
+        }
+
+        // 인증번호 사용 후 삭제
+        redisTemplate.delete("auth:" + phone);
+
+        // 여기서는 phone만으로 사용자 조회
+        User user = userRepository.findByPhoneNumber(phone)
+                .orElseThrow(() -> new UserException(ErrorStatus._USER_NOT_FOUND));
+
+        // JWT 발급
+        String accessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
+        String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
+
+        return AuthResponseDTO.PhoneLoginResult.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
 
     // KAKAO 웹 로그인
     @Transactional

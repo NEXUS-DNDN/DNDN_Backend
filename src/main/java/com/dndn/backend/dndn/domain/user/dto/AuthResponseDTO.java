@@ -195,4 +195,14 @@ public class AuthResponseDTO {
         private boolean valid;
         private Long userId;
     }
+
+    // 휴대폰 인증 로그인 응답 DTO
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PhoneLoginResult {
+        private String accessToken;
+        private String refreshToken;
+    }
 }

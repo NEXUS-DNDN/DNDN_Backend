@@ -8,6 +8,7 @@ import com.dndn.backend.dndn.global.common.response.BaseResponse;
 import com.dndn.backend.dndn.global.error.code.status.ErrorStatus;
 import com.dndn.backend.dndn.global.error.code.status.SuccessStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -113,5 +114,43 @@ public class LoginController {
         loginService.deleteAccount(accessTokenHeader);
 
         return BaseResponse.onSuccess(SuccessStatus.SUCCESS_WITHDRAW, "회원 탈퇴가 완료되었습니다.");
+    }
+
+    // 인증 번호 발송
+    @PostMapping("/send-code")
+    @Operation(
+            summary = "휴대폰 인증번호 발송",
+            description = "사용자 이름과 휴대폰 번호가 일치하는지 확인 후, 해당 번호로 6자리 인증번호를 발송합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "AUTH_200", description = "OK, 인증번호 발송 완료"),
+            @ApiResponse(responseCode = "USER_4001", description = "일치하는 사용자 정보가 없음")
+    })
+    public BaseResponse<String> sendCode(
+            @Parameter(description = "사용자 이름", example = "홍길동") @RequestParam String name,
+            @Parameter(description = "휴대폰 번호 (숫자만 입력)", example = "01012345678") @RequestParam String phone) {
+
+        loginService.sendVerificationCode(name, phone);
+
+        return BaseResponse.onSuccess(SuccessStatus.SUCCESS_SEND_AUTHENTICATION_CODE, "");
+    }
+
+    // sms 인증 로그인
+    @PostMapping("/sms-login")
+    @Operation(
+            summary = "휴대폰 인증번호 검증 및 로그인",
+            description = "사용자가 입력한 인증번호가 올바른 경우 JWT Access/Refresh Token을 발급합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "AUTH_200", description = "OK, 로그인 성공"),
+            @ApiResponse(responseCode = "TOKEN_4002", description = "인증번호가 잘못되었거나 만료됨"),
+            @ApiResponse(responseCode = "USER_4001", description = "사용자 정보 없음")
+    })
+    public BaseResponse<AuthResponseDTO.PhoneLoginResult> verifyCode(
+            @Parameter(description = "휴대폰 번호 (숫자만 입력)", example = "01012345678") @RequestParam String phone,
+            @Parameter(description = "6자리 인증번호", example = "123456") @RequestParam String code) {
+
+        AuthResponseDTO.PhoneLoginResult result = loginService.verifyCodeAndLogin(phone, code);
+        return BaseResponse.onSuccess(SuccessStatus.SUCCESS_SMS_LOGIN, result);
     }
 }

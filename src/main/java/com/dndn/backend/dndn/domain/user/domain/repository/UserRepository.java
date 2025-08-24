@@ -12,4 +12,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<com.dndn.backend.dndn.domain.user.domain.entity.User> findBySocialId(String socialId);
 
     boolean existsBySocialId(String socialId);
+
+    Optional<User> findByNameAndPhoneNumber(String name, String phoneNumber);
+    Optional<User> findByPhoneNumber(String phoneNumber);
+
 }

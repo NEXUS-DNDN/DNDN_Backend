@@ -120,6 +120,7 @@ public class WelfareServiceImpl implements WelfareService {
                 .map(w -> new WelfareWithScore(w, calculateScore(user, w)))
                 .filter(w -> w.getScore() > 0) // 지역 조건 불일치 등으로 점수 0이면 제외
                 .sorted(Comparator.comparingDouble(WelfareWithScore::getScore).reversed())
+                .limit(5)
                 .map(WelfareWithScore::getWelfare)
                 .toList();
     }

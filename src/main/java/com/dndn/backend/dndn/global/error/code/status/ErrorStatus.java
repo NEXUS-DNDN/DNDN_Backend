@@ -26,7 +26,20 @@ public enum ErrorStatus implements BaseErrorCode{
     _WELFARE_NOT_FOUND(HttpStatus.NOT_FOUND, "WELFARE4001", "존재하지 않는 복지 서비스입니다."),
 
     //Interest
-    INTEREST_INVALID_STATUS(HttpStatus.BAD_REQUEST, "INTEREST4001", "interestStatus는 [true,false,all] 중 하나여야 합니다.");
+    INTEREST_INVALID_STATUS(HttpStatus.BAD_REQUEST, "INTEREST4001", "interestStatus는 [true,false,all] 중 하나여야 합니다."),
+
+    // Application
+    APPLICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "APPLICATION4001", "존재하지 않는 신청 내역입니다."),
+    APPLICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "APPLICATION4031", "해당 신청 내역에 접근 권한이 없습니다."),
+    APPLICATION_DUPLICATED(HttpStatus.CONFLICT, "APPLICATION4091", "이미 신청된 복지입니다."),
+    APPLICATION_DELETE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "APPLICATION4002", "수령 완료 상태에서만 삭제할 수 있습니다."),
+
+    // file
+    DOCUMENT_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DOCUMENT4001", "파일 업로드에 실패했습니다."),
+    DOCUMENT_DOWNLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DOCUMENT4002", "파일 다운로드에 실패했습니다."),
+    DOCUMENT_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DOCUMENT4003", "파일 삭제에 실패했습니다."),
+    DOCUMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "DOCUMENT4004", "요청하신 파일을 찾을 수 없습니다.");
+
 
     private final HttpStatus httpStatus;
     private final String code;

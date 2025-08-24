@@ -3,8 +3,10 @@ package com.dndn.backend.dndn.domain.welfare.application;
 import com.dndn.backend.dndn.domain.category.domain.enums.HouseholdType;
 import com.dndn.backend.dndn.domain.category.domain.enums.InterestTopic;
 import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
+import com.dndn.backend.dndn.domain.user.domain.entity.User;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareDetailResDto;
 import com.dndn.backend.dndn.domain.welfare.api.response.WelfareListResDto;
+import com.dndn.backend.dndn.domain.welfare.domain.Welfare;
 
 import java.util.List;
 
@@ -25,5 +27,16 @@ public interface WelfareService {
             List<HouseholdType> householdTypes,
             List<InterestTopic> interestTopics
     );
+
+    // 검색어 + 카테고리 복지 서비스 목록 조회
+
+    WelfareListResDto welfareSearch(
+            String keyword, LifeCycle lifeCycle,
+            List<HouseholdType> householdTypes,
+            List<InterestTopic> interestTopics
+    );
+
+    // 복지 추천 로직
+    List<Welfare> getRecommendedWelfares(User user);
 }
 

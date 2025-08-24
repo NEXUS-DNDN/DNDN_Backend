@@ -1,9 +1,12 @@
 package com.dndn.backend.dndn.domain.welfareOpenApi.local.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -14,6 +17,9 @@ public class LocalDetailResDto {
 
     @JacksonXmlProperty(localName = "resultMessage")
     private String resultMessage;
+
+    @JacksonXmlProperty(localName = "aplyDocList")
+    private String aplyDocList;
 
     @JacksonXmlProperty(localName = "servId")
     private String servId;
@@ -75,17 +81,22 @@ public class LocalDetailResDto {
     @JacksonXmlProperty(localName = "lastModYmd")
     private String lastModYmd;
 
+    // ✅ 리스트로 변경
+    @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "inqplCtadrList")
-    private RelatedInfo inqplCtadrList;
+    private List<RelatedInfo> inqplCtadrList;
 
+    @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "inqplHmpgReldList")
-    private RelatedInfo inqplHmpgReldList;
+    private List<RelatedInfo> inqplHmpgReldList;
 
+    @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "baslawList")
-    private RelatedInfo baslawList;
+    private List<RelatedInfo> baslawList;
 
+    @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "basfrmList")
-    private RelatedInfo basfrmList;
+    private List<RelatedInfo> basfrmList;
 
     @Getter
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -12,18 +12,22 @@ import java.util.Optional;
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
     @Query("""
-        select a
-        from Application a
-        join fetch a.welfare w
-        where a.user.id = :userId
-          and a.receiveStatus = :status
-        order by a.appliedAt desc
+    select distinct a
+    from Application a
+    join fetch a.welfare w
+    join fetch w.category c
+    left join fetch c.lifeCycles lc
+    where a.user.id = :userId
+    and a.receiveStatus = :status
+    order by a.appliedAt desc
     """)
     List<Application> findAllWithWelfareByUserAndStatus(
             @Param("userId") Long userId,
             @Param("status") ReceiveStatus status
     );
 
-    Optional<Application> findByIdAndUser_Id(Long id, Long userId);
+    boolean existsByUser_IdAndWelfare_Id(Long userId, Long welfareId);
+
+    int deleteByIdAndUser_IdAndReceiveStatus(Long id, Long userId, ReceiveStatus status);
 }
 

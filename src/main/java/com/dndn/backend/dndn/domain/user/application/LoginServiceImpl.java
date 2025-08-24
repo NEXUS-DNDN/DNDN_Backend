@@ -168,7 +168,6 @@ public class LoginServiceImpl implements LoginService {
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult naverLogin(String code) {
-
         // 네이버 access token 발급
         AuthResponseDTO.NaverToken token = naverOAuthClient.requestToken(code);
 
@@ -176,7 +175,7 @@ public class LoginServiceImpl implements LoginService {
         AuthResponseDTO.NaverUserInfo userInfo = naverOAuthClient.requestUserInfo(token.getAccessToken());
 
         // 유저 존재 여부 확인
-        String socialId = String.valueOf(userInfo.getId());
+        String socialId = userInfo.getResponse().getId();
         Optional<User> existingUser = userRepository.findBySocialId(socialId);
         boolean isNewUser = existingUser.isEmpty();
 
@@ -184,9 +183,9 @@ public class LoginServiceImpl implements LoginService {
         User user = existingUser.orElseGet(() -> userRepository.save(
                 User.builder()
                         .socialId(socialId)
-                        .profileImageUrl(userInfo.getNaverAccount().getProfile().getProfileImageUrl())
-                        .name("미입력")
-                        .phoneNumber("미입력")
+                        .profileImageUrl(userInfo.getResponse().getProfileImage())
+                        .name(userInfo.getResponse().getName() != null ? userInfo.getResponse().getName() : "미입력")
+                        .phoneNumber(userInfo.getResponse().getMobile() != null ? userInfo.getResponse().getMobile() : "미입력")
                         .birthday(null)
                         .address("미입력")
                         .householdNumber(0)
@@ -211,16 +210,15 @@ public class LoginServiceImpl implements LoginService {
         return LoginConverter.toNAVERWebLoginResponse(accessToken, refreshToken, isNewUser, token);
     }
 
+
     // 네이버 앱 로그인
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult naverLoginWithAccessToken(String naverAccessToken) {
-
-        // access token으로 네이버 사용자 정보 요청
+        // 사용자 정보 요청
         AuthResponseDTO.NaverUserInfo userInfo = naverOAuthClient.requestUserInfo(naverAccessToken);
-        String socialId = String.valueOf(userInfo.getId());
 
-        // 유저 존재 여부 판단
+        String socialId = userInfo.getResponse().getId();
         Optional<User> existingUser = userRepository.findBySocialId(socialId);
         boolean isNewUser = existingUser.isEmpty();
 
@@ -228,9 +226,9 @@ public class LoginServiceImpl implements LoginService {
         User user = existingUser.orElseGet(() -> userRepository.save(
                 User.builder()
                         .socialId(socialId)
-                        .profileImageUrl(userInfo.getNaverAccount().getProfile().getProfileImageUrl())
-                        .name("미입력")
-                        .phoneNumber("미입력")
+                        .profileImageUrl(userInfo.getResponse().getProfileImage())
+                        .name(userInfo.getResponse().getName() != null ? userInfo.getResponse().getName() : "미입력")
+                        .phoneNumber(userInfo.getResponse().getMobile() != null ? userInfo.getResponse().getMobile() : "미입력")
                         .birthday(null)
                         .address("미입력")
                         .householdNumber(0)
@@ -243,7 +241,7 @@ public class LoginServiceImpl implements LoginService {
         String accessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
         String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
-        // Redis에 refresh token 저장
+        // Redis 저장
         redisTemplate.opsForValue().set(
                 "refresh:userId:" + user.getId(),
                 refreshToken,
@@ -251,9 +249,9 @@ public class LoginServiceImpl implements LoginService {
                 TimeUnit.MILLISECONDS
         );
 
-        // 응답 반환
         return LoginConverter.toNAVERLoginResponse(accessToken, refreshToken, naverAccessToken, isNewUser);
     }
+
 
     // 구글 웹 로그인
     @Transactional

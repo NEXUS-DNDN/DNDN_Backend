@@ -118,18 +118,19 @@ public class WelfareServiceImpl implements WelfareService {
 
         return all.stream()
                 .map(w -> new WelfareWithScore(w, calculateScore(user, w)))
-                .filter(w -> w.getScore() > 0) // 지역 조건 불일치 등으로 점수 0이면 제외
+                .filter(w -> w.getScore() >= 0) // 지역 조건 불일치 등으로 점수 0이면 제외
                 .sorted(Comparator.comparingDouble(WelfareWithScore::getScore).reversed())
                 .map(WelfareWithScore::getWelfare)
                 .toList();
     }
 
     private double calculateScore(User user, Welfare welfare) {
-        if (!isRegionMatch(user.getAddress(), welfare.getCtpvNm(), welfare.getSggNm())) {
-            return 0;
-        }
 
         double score = 0;
+
+        if (!isRegionMatch(user.getAddress(), welfare.getCtpvNm(), welfare.getSggNm())) {
+            score -=100;
+        }
 
         if (isLifeCycleMatched(user, welfare)) {
             score += 1;

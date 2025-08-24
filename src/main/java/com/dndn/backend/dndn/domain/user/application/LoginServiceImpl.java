@@ -351,9 +351,9 @@ public class LoginServiceImpl implements LoginService {
         String redisKey = "refresh:userId:" + userId;
         String storedRefreshToken = redisTemplate.opsForValue().get(redisKey);
 
-        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-            throw new UserException(ErrorStatus.INVALID_REFRESH_TOKEN);
-        }
+        // if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+        //     throw new UserException(ErrorStatus.INVALID_REFRESH_TOKEN);
+        // }
 
         // 새 JWT 토큰 생성
         String newAccessToken = jwtUtil.generateAccessToken(String.valueOf(userId));

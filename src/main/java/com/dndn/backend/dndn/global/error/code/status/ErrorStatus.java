@@ -38,7 +38,10 @@ public enum ErrorStatus implements BaseErrorCode{
     DOCUMENT_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DOCUMENT4001", "파일 업로드에 실패했습니다."),
     DOCUMENT_DOWNLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DOCUMENT4002", "파일 다운로드에 실패했습니다."),
     DOCUMENT_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "DOCUMENT4003", "파일 삭제에 실패했습니다."),
-    DOCUMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "DOCUMENT4004", "요청하신 파일을 찾을 수 없습니다.");
+    DOCUMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "DOCUMENT4004", "요청하신 파일을 찾을 수 없습니다."),
+
+    // sms
+    SMS_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SMS_4001", "인증번호 발송에 실패했습니다.");
 
 
     private final HttpStatus httpStatus;

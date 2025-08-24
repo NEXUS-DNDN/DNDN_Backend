@@ -22,4 +22,5 @@ public class SmsConfig {
     public DefaultMessageService defaultMessageService() {
         return NurigoApp.INSTANCE.initialize(apiKey, apiSecret, domain);
     }
+
 }

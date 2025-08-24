@@ -62,7 +62,7 @@ dependencies {
 	implementation 'io.minio:minio:8.4.3'
 
 	// SMS
-	implementation 'net.nurigo:sdk:4.3.0'
+	implementation 'net.nurigo:sdk:4.3.2'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'

@@ -33,4 +33,10 @@ public interface LoginService {
 
     // 회원 탈퇴
     void deleteAccount(String accessToken);
+
+    // sms 인증
+    void sendVerificationCode(String name, String phone);
+
+    // sms 로그인
+    AuthResponseDTO.PhoneLoginResult verifyCodeAndLogin(String phone, String code);
 }

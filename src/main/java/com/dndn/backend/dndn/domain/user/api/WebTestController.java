@@ -123,25 +123,19 @@ public class WebTestController {
         AuthResponseDTO.NaverUserInfo userInfo = naverOAuthClient.requestUserInfo(naverToken.getAccessToken());
 
         // 2. 사용자 정보 파싱
-        Optional<AuthResponseDTO.NaverUserInfo.NaverAccount> naverAccountOpt = Optional.ofNullable(userInfo.getNaverAccount());
+        AuthResponseDTO.NaverUserInfo.Response naverResp = userInfo.getResponse();
 
-        String nickname = naverAccountOpt
-                .map(AuthResponseDTO.NaverUserInfo.NaverAccount::getProfile)
-                .map(AuthResponseDTO.NaverUserInfo.NaverAccount.Profile::getNickname)
-                .orElse("게스트");
+        String nickname = Optional.ofNullable(naverResp.getNickname()).orElse("게스트");
+        String profileImageUrl = naverResp.getProfileImage();
+        String socialId = naverResp.getId();
 
-        String profileImageUrl = naverAccountOpt
-                .map(AuthResponseDTO.NaverUserInfo.NaverAccount::getProfile)
-                .map(AuthResponseDTO.NaverUserInfo.NaverAccount.Profile::getProfileImageUrl)
-                .orElse(null);
-
-        log.info("✅ [네이버 로그인 응답] id={}, nickname={}, profileImage={}", naverAccountOpt, nickname, profileImageUrl);
+        log.info("✅ [네이버 로그인 응답] id={}, nickname={}, profileImage={}", socialId, nickname, profileImageUrl);
 
         // 3. 기존 사용자 확인 또는 신규 저장
-        User user = userRepository.findBySocialId(String.valueOf(userInfo.getId()))
+        User user = userRepository.findBySocialId(socialId)
                 .orElseGet(() -> userRepository.save(
                         User.builder()
-                                .socialId(String.valueOf(userInfo.getId()))
+                                .socialId(socialId)
                                 .profileImageUrl(profileImageUrl)
                                 .name("미입력")
                                 .phoneNumber("미입력")
@@ -157,15 +151,16 @@ public class WebTestController {
         String jwtAccessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
         String jwtRefreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
-        // 5. 모델에 전달 (네이버 로그인 처리 결과를 뿌릴 HTML 필요)
+        // 5. 모델에 전달
         model.addAttribute("authCode", code);
         model.addAttribute("naverAccessToken", naverToken.getAccessToken());
         model.addAttribute("naverRefreshToken", naverToken.getRefreshToken());
         model.addAttribute("accessToken", jwtAccessToken);
         model.addAttribute("refreshToken", jwtRefreshToken);
 
-        return "naverCallback"; // naverCallback.html로 이동
+        return "naverCallback"; // naverCallback.html 렌더링
     }
+
 
     @GetMapping("/login/oauth/google")
     public String googleCallback(@RequestParam String code, Model model) {

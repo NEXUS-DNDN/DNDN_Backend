@@ -84,37 +84,32 @@ public class AuthResponseDTO {
     }
 
     // ✅ 네이버 유저 정보 응답 DTO (카카오 스타일)
-    @Builder
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NaverUserInfo {
-
-        private Long id;
-
-        @JsonProperty("naver-account")
-        private NaverAccount naverAccount;
+        private String resultcode;
+        private String message;
+        private Response response;
 
         @Getter
         @NoArgsConstructor
         @AllArgsConstructor
-        public static class NaverAccount {
+        public static class Response {
+            private String id;
             private String email;
+            private String name;
+            private String nickname;
 
-            private Profile profile;
+            @JsonProperty("mobile")   // 네이버 JSON 응답에 있는 키 그대로
+            private String mobile;
 
-            @Getter
-            @Setter
-            @NoArgsConstructor
-            @AllArgsConstructor
-            public static class Profile {
-                private String nickname;
-
-                @JsonProperty("profile_image_url")
-                private String profileImageUrl;
-            }
+            @JsonProperty("profile_image")
+            private String profileImage;
         }
     }
+
+
 
     @Data
     public static class GoogleToken {
@@ -154,9 +149,8 @@ public class AuthResponseDTO {
         @NoArgsConstructor
         @AllArgsConstructor
         public static class GoogleAccount {
-
+            private String id;
             private String email;
-
             private Profile profile;
 
             @Getter

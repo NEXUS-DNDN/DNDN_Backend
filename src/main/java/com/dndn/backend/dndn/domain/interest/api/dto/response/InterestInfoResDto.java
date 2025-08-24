@@ -13,22 +13,45 @@ public record InterestInfoResDto(
         Long welfareId,
         Boolean interestStatus,
         String welfareTitle,
+        List<String> lifeCycleNames,
+        List<String> householdTypeNames,
         List<String> interestTopicNames,
         String department,
         String org,
         LocalDateTime endDate
 ) {
     public static InterestInfoResDto from(Interest interest) {
+        var welfare = interest.getWelfare();
+        var category = welfare.getCategory();
+
+        List<String> lifeCycleNames = (category == null) ? List.of()
+                : category.getLifeCycles().stream()
+                .map(it -> it.getKor())
+                .distinct()
+                .toList();
+
+        List<String> householdTypeNames = (category == null) ? List.of()
+                : category.getHouseholdTypes().stream()
+                .map(it -> it.getKor())
+                .distinct()
+                .toList();
+
+        List<String> interestTopicNames = (category == null) ? List.of()
+                : category.getInterestTopics().stream()
+                .map(it -> it.getKor())
+                .distinct()
+                .toList();
+
         return InterestInfoResDto.builder()
-                .welfareId(interest.getWelfare().getId())
-                .welfareTitle(interest.getWelfare().getTitle())
+                .welfareId(welfare.getId())
+                .welfareTitle(welfare.getTitle())
                 .interestStatus(interest.getInterestStatus())
-                .interestTopicNames(interest.getWelfare().getCategory().getInterestTopics().stream()
-                        .map(it -> it.getKor())
-                        .collect(Collectors.toList()))
-                .department(interest.getWelfare().getDepartment()) // ↓ ※ Welfare에 필드가 있어야 합니다
-                .org(interest.getWelfare().getOrg())
-                .endDate(interest.getWelfare().getEndDate())
+                .lifeCycleNames(lifeCycleNames)
+                .householdTypeNames(householdTypeNames)
+                .interestTopicNames(interestTopicNames)
+                .department(welfare.getDepartment())
+                .org(welfare.getOrg())
+                .endDate(welfare.getEndDate())
                 .build();
     }
 }

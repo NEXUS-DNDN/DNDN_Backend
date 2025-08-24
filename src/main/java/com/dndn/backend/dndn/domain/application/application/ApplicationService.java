@@ -25,4 +25,7 @@ public interface ApplicationService {
     // 혜택 내역 삭제
     void deleteReceived(Long applicationId, Long userId);
 
+    // 수령상태 수령 전으로 되돌리기
+    void revertReceived(Long applicationId, Long userId);
+
 }

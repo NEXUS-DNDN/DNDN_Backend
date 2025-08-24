@@ -60,4 +60,11 @@ public interface WelfareRepository extends JpaRepository<Welfare, Long> {
             @Param("interests") List<InterestTopic> interests,
             @Param("interestsEmpty") boolean interestsEmpty
     );
+
+    @Query("""
+    select distinct w from Welfare w
+    join fetch w.category
+""")
+    List<Welfare> findAllWithCategory();
+
 }

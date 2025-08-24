@@ -2,6 +2,8 @@ package com.dndn.backend.dndn.domain.user.domain.repository;
 
 import com.dndn.backend.dndn.domain.user.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -15,5 +17,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByNameAndPhoneNumber(String name, String phoneNumber);
     Optional<User> findByPhoneNumber(String phoneNumber);
+
+
+    @Query("""
+    select u from User u
+    left join fetch u.seniorInfo
+    left join fetch u.disabledInfo
+    left join fetch u.householdTypes
+    where u.id = :userId
+""")
+    Optional<User> findWithAllAdditionalInfoById(@Param("userId") Long userId);
+
 
 }

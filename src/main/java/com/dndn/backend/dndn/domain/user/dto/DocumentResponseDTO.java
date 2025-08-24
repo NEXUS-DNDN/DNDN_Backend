@@ -22,6 +22,7 @@ public class DocumentResponseDTO {
 
     @Getter
     @Builder
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class DocumentListItemResponse {
         private Long documentId;
@@ -31,4 +32,12 @@ public class DocumentResponseDTO {
         private LocalDateTime createdAt;
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DocumentDownloadResponse {
+        private String originalName;
+        private String downloadUrl;
+    }
 }

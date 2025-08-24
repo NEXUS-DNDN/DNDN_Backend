@@ -16,7 +16,7 @@ public interface DocumentService {
     List<DocumentResponseDTO.DocumentListItemResponse> getUserDocuments(Long userId);
 
     // 서류 다운로드
-    ResponseEntity<InputStreamResource> downloadDocument(Long userId, Long documentId);
+    DocumentResponseDTO.DocumentDownloadResponse downloadDocument(Long userId, Long documentId);
 
     // 문서 삭제
     public void deleteDocument(Long userId, Long documentId);

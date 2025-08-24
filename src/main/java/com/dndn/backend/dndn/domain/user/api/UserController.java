@@ -167,13 +167,21 @@ public class UserController {
     @GetMapping("/documents/{document-id}/download")
     @Operation(
             summary = "문서 다운로드",
-            description = "jwt 토큰 인증 후 path로 document-id를 넘겨주세요."
+            description = "해당 유저의 특정 문서를 다운로드할 수 있는 Presigned URL을 반환합니다."
     )
-    public ResponseEntity<InputStreamResource> downloadDocument(
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "USER_4001", description = "유저가 존재하지 않습니다."),
+            @ApiResponse(responseCode = "DOCUMENT_4001", description = "파일 다운로드에 실패했습니다."),
+            @ApiResponse(responseCode = "DOCUMENT_201", description = "파일 다운로드가 성공적으로 완료되었습니다.")
+    })
+    public BaseResponse<DocumentResponseDTO.DocumentDownloadResponse> downloadDocument(
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable("document-id") Long documentId) {
 
-        return documentService.downloadDocument(principal.getId(), documentId);
+        DocumentResponseDTO.DocumentDownloadResponse result =
+                documentService.downloadDocument(principal.getId(), documentId);
+
+        return BaseResponse.onSuccess(SuccessStatus.DOCUMENT_DOWNLOAD_SUCCESS, result);
     }
 
     // 서류 파일 삭제

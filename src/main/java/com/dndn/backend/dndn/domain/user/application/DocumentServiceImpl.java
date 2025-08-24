@@ -77,16 +77,16 @@ public class DocumentServiceImpl implements DocumentService {
     // 업로드 한 서류 다운로드
     @Transactional(readOnly = true)
     @Override
-    public ResponseEntity<InputStreamResource> downloadDocument(Long userId, Long documentId) {
+    public DocumentResponseDTO.DocumentDownloadResponse downloadDocument(Long userId, Long documentId) {
         DocumentFile document = documentRepository.findByIdAndUserId(documentId, userId)
                 .orElseThrow(() -> new DocumentException(ErrorStatus.DOCUMENT_DOWNLOAD_FAILED));
 
-        // 👉 MinioService 통해 파일 스트림 가져오기
-        InputStream inputStream = minioService.downloadFile(document.getStoredName());
+        // 👉 MinioService 통해 Presigned URL 생성
+        String presignedUrl = minioService.getPresignedUrl(document.getStoredName(), 60 * 60);
 
-        // 👉 Converter 사용해서 ResponseEntity로 변환
-        return UserConverter.toDocumentDownloadResponse(document, inputStream);
+        return UserConverter.toDocumentDownloadResponse(document, presignedUrl);
     }
+
 
     // 업로드 한 서류 삭제
     @Transactional

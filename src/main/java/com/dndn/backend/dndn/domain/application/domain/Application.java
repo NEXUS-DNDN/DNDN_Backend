@@ -46,5 +46,11 @@ public class Application extends BaseEntity {
     public void updateReceiveStatus() {
         this.receiveStatus = ReceiveStatus.RECEIVED;
     }
+
+    // 수령 전으로 되돌리기
+    public void revertReceiveStatus() {
+        this.receiveStatus = ReceiveStatus.NOT_RECEIVED;
+    }
+
 }
 

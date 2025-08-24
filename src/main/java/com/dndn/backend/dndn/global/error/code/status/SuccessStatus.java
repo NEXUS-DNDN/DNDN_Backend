@@ -25,6 +25,7 @@ public enum SuccessStatus implements BaseCode{
     APPLICATION_CREATED(HttpStatus.CREATED, "APPLICATION_201", "신청이 완료 되었습니다."),
     APPLICATION_RECEIVED_UPDATED(HttpStatus.NO_CONTENT, "APPLICATION_204", "수령 상태 업데이트 성공"),
     APPLICATION_DELETED(HttpStatus.NO_CONTENT, "APPLICATION_205", "신청 내역이 삭제되었습니다."),
+    APPLICATION_RECEIVED_REVERTED(HttpStatus.NO_CONTENT, "APPLICATION_206", "수령 상태 되돌리기 성공"),
 
     // File
     DOCUMENT_UPLOAD_SUCCESS(HttpStatus.CREATED, "DOCUMENT_201", "파일 업로드가 성공적으로 완료되었습니다."),

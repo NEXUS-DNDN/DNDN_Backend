@@ -67,6 +67,13 @@ public class CentralWelfareSyncService {
                 String submit   = nzOr(dtl.getAlwServCn(), "제출서류 정보 미제공");
                 String dept     = nzOr(dtl.getJurMnofNm(), "담당부처 미제공");
                 String org      = nzOr(dtl.getJurOrgNm(), "담당기관 미제공");
+                String detailInfo = Optional.ofNullable(dtl.getBasfrmList())
+                        .orElse(List.of())
+                        .stream()
+                        .map(CentralDetailResDto.ServDetail::getServSeDetailLink)
+                        .filter(s -> s != null && !s.isBlank())
+                        .findFirst()
+                        .orElse("상세정보링크 미제공");
 
                 // 카테고리 매핑
                 List<LifeCycle> lifeCycles     = parseLifeCycles(nz(dtl.getLifeArray()));
@@ -88,11 +95,7 @@ public class CentralWelfareSyncService {
                             .servLink(link)
                             .ctpvNm("지역정보없음")
                             .sggNm("지역정보없음")
-                            .imageUrl(null)
                             .eligibleUser(eligible)
-                            .submitDocument(submit)
-                            .startDate(null)
-                            .endDate(null)
                             .sourceType(SourceType.CENTRAL)
                             .category(category)
                             .build();
@@ -102,8 +105,7 @@ public class CentralWelfareSyncService {
 
                     if (!Objects.equals(welfare.getContent(), outline) ||
                             !Objects.equals(welfare.getServLink(), link) ||
-                            !Objects.equals(welfare.getEligibleUser(), eligible) ||
-                            !Objects.equals(welfare.getSubmitDocument(), submit)) {
+                            !Objects.equals(welfare.getEligibleUser(), eligible)) {
 
                         welfare.update(
                                 title,
@@ -112,7 +114,7 @@ public class CentralWelfareSyncService {
                                 dept,
                                 org,
                                 eligible,
-                                submit
+                                detailInfo
                         );
 
                         updated = true;

@@ -6,7 +6,6 @@ import com.dndn.backend.dndn.domain.category.domain.enums.LifeCycle;
 import lombok.Builder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -14,11 +13,9 @@ public record ApplicationInfoResDto(
         Long applicationId,
         Long welfareId,
         String title,
-        String imageUrl,
         String department,  // 담당부처
         String org,         // 담당기관명
         LocalDate appliedAt,
-        LocalDateTime endDate,
         ReceiveStatus receiveStatus,
         String servLink,
         List<LifeCycle> lifeCycles,
@@ -29,11 +26,9 @@ public record ApplicationInfoResDto(
                 .applicationId(application.getId())
                 .welfareId(application.getWelfare().getId())
                 .title(application.getWelfare().getTitle())
-                .imageUrl(application.getWelfare().getImageUrl()) // Welfare 엔티티 필드명에 맞게 수정
                 .department(application.getWelfare().getDepartment())
                 .org(application.getWelfare().getOrg())
                 .appliedAt(application.getAppliedAt())
-                .endDate(application.getWelfare().getEndDate())
                 .receiveStatus(application.getReceiveStatus())
                 .servLink(application.getWelfare().getServLink())
                 .lifeCycles(application.getWelfare().getCategory().getLifeCycles())

@@ -47,10 +47,7 @@ public class LoginController {
             case GOOGLE ->
                     result = loginService.googleLoginWithAccessToken(request.getAccessToken());
             case NAVER -> {
-                // ✅ 네이버는 code/state 로 토큰 교환
                 AuthResponseDTO.NaverToken naverToken = naverOAuthClient.requestToken(request.getCode(), request.getState());
-                log.info("발급받은 네이버 accessToken={}", naverToken.getAccessToken());
-
                 result = loginService.naverLoginWithAccessToken(naverToken.getAccessToken());
             }
             default -> throw new UserException(ErrorStatus.NO_SUCH_LOGIN_TYPE);

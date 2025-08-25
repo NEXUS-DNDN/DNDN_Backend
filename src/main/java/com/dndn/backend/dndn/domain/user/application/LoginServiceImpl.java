@@ -167,7 +167,7 @@ public class LoginServiceImpl implements LoginService {
 
         // access token으로 구글 사용자 정보 요청
         AuthResponseDTO.GoogleUserInfo userInfo = googleOAuthClient.requestUserInfo(googleAccessToken);
-        String socialId = String.valueOf(userInfo.getId());
+        String socialId = userInfo.getId(); // id 그대로
 
         // 유저 존재 여부 판단
         Optional<User> existingUser = userRepository.findBySocialId(socialId);
@@ -177,8 +177,8 @@ public class LoginServiceImpl implements LoginService {
         User user = existingUser.orElseGet(() -> userRepository.save(
                 User.builder()
                         .socialId(socialId)
-                        .profileImageUrl(userInfo.getGoogleAccount().getProfile().getProfileImageUrl())
-                        .name("미입력")
+                        .profileImageUrl(userInfo.getProfileImage()) // ✅ 수정됨
+                        .name(userInfo.getName() != null ? userInfo.getName() : "미입력")
                         .phoneNumber("미입력")
                         .birthday(null)
                         .address("미입력")
@@ -203,6 +203,7 @@ public class LoginServiceImpl implements LoginService {
         // 응답 반환
         return LoginConverter.toGOOGLELoginResponse(accessToken, refreshToken, googleAccessToken, isNewUser);
     }
+
 
 
     // 토큰 재발급

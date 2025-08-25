@@ -132,39 +132,17 @@ public class AuthResponseDTO {
         private String idToken;
     }
 
-
-    // ✅ 구글 유저 정보 응답 DTO (네이버 스타일)
-    @Builder
+    // 구글
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class GoogleUserInfo {
+        private String id;        // 구글 사용자 고유 ID
+        private String email;     // 이메일
+        private String name;      // 이름
 
-        private String id;
-
-        @JsonProperty("google-account")
-        private GoogleAccount googleAccount;
-
-        @Getter
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class GoogleAccount {
-            private String id;
-            private String email;
-            private Profile profile;
-
-            @Getter
-            @Setter
-            @NoArgsConstructor
-            @AllArgsConstructor
-            public static class Profile {
-
-                private String name;
-
-                @JsonProperty("picture")
-                private String profileImageUrl;
-            }
-        }
+        @JsonProperty("picture")
+        private String profileImage; // 프로필 이미지 URL
     }
 
     // 최종 로그인 응답 DTO

@@ -10,8 +10,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,9 +30,6 @@ public class Welfare extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
     // 상세 링크
     @Column(name = "service_link")
     private String servLink;
@@ -52,22 +47,9 @@ public class Welfare extends BaseEntity {
     @Column(name = "eligible_user", nullable = false, columnDefinition = "TEXT")
     private String eligibleUser;
 
-    // 제출 서류
-    @Lob
-    @Column(name = "submit_document", nullable = false, columnDefinition = "TEXT")
-    private String submitDocument;
-
     // 상세 정보
     @Column(name = "detail_info", length = 1000)
     private String detailInfo;
-
-    // 신청 시작일
-    @Column(name = "start_date", nullable = true)
-    private LocalDateTime startDate;
-
-    // 신청 마감일
-    @Column(name = "end_date", nullable = true)
-    private LocalDateTime endDate;
 
     // 담당부처
     @Column(name = "department", length = 200, nullable = true)
@@ -93,10 +75,8 @@ public class Welfare extends BaseEntity {
 
     @Builder
     private Welfare(String servId, String title, String summary , String content, String servLink,
-                    String ctpvNm, String sggNm,
-                    String imageUrl, String eligibleUser, String submitDocument,
-                    String detailInfo, LocalDateTime startDate, LocalDateTime endDate,
-                    String department, String org,
+                    String ctpvNm, String sggNm, String eligibleUser,
+                    String detailInfo, String department, String org,
                     SourceType sourceType, Category category) {
         this.servId = servId;
         this.title = title;
@@ -106,11 +86,7 @@ public class Welfare extends BaseEntity {
         this.detailInfo = detailInfo;
         this.ctpvNm = ctpvNm;
         this.sggNm = sggNm;
-        this.imageUrl = imageUrl;
         this.eligibleUser = eligibleUser;
-        this.submitDocument = submitDocument;   // ✅ 추가
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.department = department;
         this.org = org;
         this.sourceType = sourceType;
@@ -136,11 +112,6 @@ public class Welfare extends BaseEntity {
         this.org = org;
         this.eligibleUser = eligibleUser;
         this.detailInfo = detailInfo;
-    }
-
-    public void updatePeriod(LocalDateTime start, LocalDateTime end) {
-        this.startDate = start;
-        this.endDate = end;
     }
 
 }

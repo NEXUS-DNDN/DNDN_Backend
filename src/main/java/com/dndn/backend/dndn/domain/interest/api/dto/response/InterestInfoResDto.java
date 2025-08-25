@@ -1,12 +1,9 @@
 package com.dndn.backend.dndn.domain.interest.api.dto.response;
 
-import com.dndn.backend.dndn.domain.category.domain.Category;
 import com.dndn.backend.dndn.domain.interest.domain.Interest;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Builder
 public record InterestInfoResDto(
@@ -17,8 +14,7 @@ public record InterestInfoResDto(
         List<String> householdTypeNames,
         List<String> interestTopicNames,
         String department,
-        String org,
-        LocalDateTime endDate
+        String org
 ) {
     public static InterestInfoResDto from(Interest interest) {
         var welfare = interest.getWelfare();
@@ -51,7 +47,6 @@ public record InterestInfoResDto(
                 .interestTopicNames(interestTopicNames)
                 .department(welfare.getDepartment())
                 .org(welfare.getOrg())
-                .endDate(welfare.getEndDate())
                 .build();
     }
 }

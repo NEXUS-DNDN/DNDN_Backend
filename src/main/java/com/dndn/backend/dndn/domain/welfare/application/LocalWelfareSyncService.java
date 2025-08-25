@@ -15,9 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,10 +73,6 @@ public class LocalWelfareSyncService {
                     continue;
                 }
 
-                // 기간
-                LocalDateTime start = parseYmd(detail.getEnfcBgngYmd());
-                LocalDateTime end   = parseYmd(detail.getEnfcEndYmd());
-
                 String org = Optional.ofNullable(detail.getInqplCtadrList())
                         .orElse(List.of())
                         .stream()
@@ -105,12 +99,8 @@ public class LocalWelfareSyncService {
                             .summary(nzOr(detail.getServDgst(), "요약 미제공"))
                             .content(nzOr(detail.getAlwServCn(), "내용 미제공"))
                             .servLink(nz(item.getServDtlLink()))
-                            .imageUrl(null)
                             .eligibleUser(nzOr(detail.getSprtTrgtCn(), "대상자 정보 미제공"))
-                            .submitDocument(nzOr(detail.getAplyDocList(), "제출서류 미제공")) // ✅ 추가
                             .detailInfo(detailInfo)
-                            .startDate(start)
-                            .endDate(end)
                             .department(nzOr(detail.getBizChrDeptNm(), "담당부처 미제공"))
                             .org(org)
                             .sourceType(SourceType.LOCAL)
@@ -168,12 +158,6 @@ public class LocalWelfareSyncService {
                         updated = true;
                     }
 
-                    // 기간
-                    if (!safeEq(welfare.getStartDate(), start) || !safeEq(welfare.getEndDate(), end)) {
-                        welfare.updatePeriod(start, end);
-                        updated = true;
-                    }
-
                     if (updated) welfareRepository.save(welfare);
                 }
             }
@@ -183,13 +167,6 @@ public class LocalWelfareSyncService {
         }
 
         log.info("[지자체 동기화] 전체 동기화 완료");
-    }
-
-    /* ---------- helpers ---------- */
-    private LocalDateTime parseYmd(String ymd) {
-        if (isBlank(ymd)) return null;
-        LocalDate d = LocalDate.parse(ymd.trim(), DateTimeFormatter.BASIC_ISO_DATE);
-        return d.atStartOfDay();
     }
 
     private static boolean isBlank(String s) { return s == null || s.isBlank(); }

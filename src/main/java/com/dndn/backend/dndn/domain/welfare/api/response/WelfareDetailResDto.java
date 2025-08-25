@@ -4,7 +4,6 @@ import com.dndn.backend.dndn.domain.welfare.domain.enums.SourceType;
 import com.dndn.backend.dndn.domain.welfare.domain.Welfare;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,7 +13,6 @@ public record WelfareDetailResDto(
         String title,
         String summary,
         String content,
-        String imageUrl,
         List<String> lifeCycleNames,
         List<String> householdTypeNames,
         List<String> interestTopicNames,
@@ -25,8 +23,6 @@ public record WelfareDetailResDto(
         String detailInfo,
         String department,
         String org,
-        LocalDateTime startDate,
-        LocalDateTime endDate,
         SourceType sourceType
 ) {
     public static WelfareDetailResDto of(Welfare welfare) {
@@ -35,7 +31,6 @@ public record WelfareDetailResDto(
                 .title(welfare.getTitle())
                 .summary(welfare.getSummary())
                 .content(welfare.getContent())
-                .imageUrl(welfare.getImageUrl())
                 .lifeCycleNames(welfare.getCategory().getLifeCycles().stream()
                         .map(lc -> lc.getKor())
                         .collect(Collectors.toList()))
@@ -52,8 +47,6 @@ public record WelfareDetailResDto(
                 .org(welfare.getOrg())
                 .eligibleUser(welfare.getEligibleUser())
                 .detailInfo(welfare.getDetailInfo())
-                .startDate(welfare.getStartDate())
-                .endDate(welfare.getEndDate())
                 .sourceType(welfare.getSourceType())
                 .build();
     }

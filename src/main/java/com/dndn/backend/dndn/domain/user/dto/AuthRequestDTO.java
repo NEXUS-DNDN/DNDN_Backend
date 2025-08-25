@@ -15,8 +15,15 @@ public class AuthRequestDTO {
     @AllArgsConstructor
     public static class SocialLoginRequest {
         private LoginType loginType;
+
+        // 카카오 / 구글 → accessToken 사용
         private String accessToken;
+
+        // 네이버 → code + state 사용
+        private String code;
+        private String state;
     }
+
 
     // 클라이언트가 토큰 재발급 요청을 보낼 때 사용하는 요청 데이터 객체
     @Builder

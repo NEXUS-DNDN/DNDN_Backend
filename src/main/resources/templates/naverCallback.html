@@ -5,29 +5,17 @@
     <title>네이버 로그인 처리 결과</title>
     <style>
         .modal {
-            position: relative;
-            top: auto;
-            left: auto;
-            transform: none;
-
             width: 90%;
             max-width: 600px;
-            margin: 40px auto; /* 페이지 가운데 정렬 */
+            margin: 40px auto;
             background-color: #fff;
             border: 2px solid #aaa;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .modal h2 {
-            margin-bottom: 20px;
-        }
-        .token-block {
-            margin-bottom: 15px;
-        }
-        .label {
-            font-weight: bold;
-        }
+        .token-block { margin-bottom: 15px; }
+        .label { font-weight: bold; }
         .value {
             width: 100%;
             margin-top: 5px;
@@ -48,29 +36,16 @@
 <div class="modal">
     <h2>🟢 네이버 로그인 처리 결과</h2>
 
+    <!-- 인가 코드 -->
     <div class="token-block">
-        <div class="label">인가 코드:</div>
-        <textarea class="value" readonly th:text="${authCode}">NO_CODE</textarea>
+        <div class="label">인가 코드 (code):</div>
+        <textarea class="value" readonly th:text="${param.code}">NO_CODE</textarea>
     </div>
 
+    <!-- 상태 값 -->
     <div class="token-block">
-        <div class="label">네이버 Access Token:</div>
-        <textarea class="value" readonly th:text="${naverAccessToken}">undefined</textarea>
-    </div>
-
-    <div class="token-block">
-        <div class="label">네이버 Refresh Token:</div>
-        <textarea class="value" readonly th:text="${naverRefreshToken}">undefined</textarea>
-    </div>
-
-    <div class="token-block">
-        <div class="label">JWT Access Token:</div>
-        <textarea class="value" readonly th:text="${accessToken}">undefined</textarea>
-    </div>
-
-    <div class="token-block">
-        <div class="label">JWT Refresh Token:</div>
-        <textarea class="value" readonly th:text="${refreshToken}">undefined</textarea>
+        <div class="label">상태 값 (state):</div>
+        <textarea class="value" readonly th:text="${param.state}">NO_STATE</textarea>
     </div>
 </div>
 

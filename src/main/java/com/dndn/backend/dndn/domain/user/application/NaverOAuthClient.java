@@ -1,6 +1,7 @@
 package com.dndn.backend.dndn.domain.user.application;
 
 import com.dndn.backend.dndn.domain.user.dto.AuthResponseDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +35,7 @@ public class NaverOAuthClient {
     @Value("${spring.oauth.naver.user-info-uri}")
     private String userInfoUri;
 
-    public AuthResponseDTO.NaverToken requestToken(String code) {
+    public AuthResponseDTO.NaverToken requestToken(String code, String state) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -45,14 +46,21 @@ public class NaverOAuthClient {
             params.add("client_secret", clientSecret);
             params.add("redirect_uri", redirectUri);
             params.add("code", code);
+            params.add("state", state);
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-            ResponseEntity<AuthResponseDTO.NaverToken> response =
-                    restTemplate.postForEntity(tokenUri, request, AuthResponseDTO.NaverToken.class);
+            // ✅ JSON 문자열로 먼저 받기
+            ResponseEntity<String> rawResponse = restTemplate.postForEntity(tokenUri, request, String.class);
+            log.info("네이버 토큰 응답 JSON 원본: {}", rawResponse.getBody());
 
-            return Optional.ofNullable(response.getBody())
-                    .orElseThrow(() -> new RuntimeException("네이버 토큰 응답이 null입니다."));
+            // ✅ ObjectMapper로 수동 매핑
+            ObjectMapper mapper = new ObjectMapper();
+            AuthResponseDTO.NaverToken token = mapper.readValue(rawResponse.getBody(), AuthResponseDTO.NaverToken.class);
+            log.info("매핑된 accessToken={}", token.getAccessToken());
+
+            return token;
+
         } catch (Exception e) {
             log.error("❌ 네이버 토큰 요청 실패: {}", e.getMessage(), e);
             throw new RuntimeException("네이버 토큰 요청 실패", e);
@@ -61,6 +69,7 @@ public class NaverOAuthClient {
 
     public AuthResponseDTO.NaverUserInfo requestUserInfo(String accessToken) {
         try {
+            log.info("accessToken: {}", accessToken);
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(accessToken);
             headers.set("Authorization", "Bearer " + accessToken);

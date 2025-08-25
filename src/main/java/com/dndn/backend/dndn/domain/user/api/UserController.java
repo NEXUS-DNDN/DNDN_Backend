@@ -108,7 +108,7 @@ public class UserController {
                 DisabledResponseDTO.from(info));
     }
 
-    @PutMapping("/{user-id}")
+    @PatchMapping("/{user-id}/update")
     @Operation (summary = "사용자 정보 수정하기", description = "사용자 정보를 수정합니다.")
     public BaseResponse<UserResponseDTO> updateUserInfo(
             @PathVariable("user-id") Long userId,

@@ -1,6 +1,7 @@
 package com.dndn.backend.dndn.domain.user.api;
 
 import com.dndn.backend.dndn.domain.user.application.LoginService;
+import com.dndn.backend.dndn.domain.user.application.NaverOAuthClient;
 import com.dndn.backend.dndn.domain.user.dto.AuthRequestDTO;
 import com.dndn.backend.dndn.domain.user.dto.AuthResponseDTO;
 import com.dndn.backend.dndn.domain.user.exception.UserException;
@@ -12,16 +13,19 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class LoginController {
 
     private final LoginService loginService;
+    private final NaverOAuthClient naverOAuthClient;
 
     // 카카오 accessToken 을 받아 JWT access/refresh 토큰을 발급하고 refreshToken은 Redis에 저장
     @PostMapping("/login/social")
@@ -32,18 +36,29 @@ public class LoginController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "AUTH_200", description = "OK, 로그인을 완료했습니다.")
     })
-    public BaseResponse<AuthResponseDTO.LoginResult> loginWithAccessToken(@RequestBody AuthRequestDTO.SocialLoginRequest request) {
+    public BaseResponse<AuthResponseDTO.LoginResult> loginWithAccessToken(
+            @RequestBody AuthRequestDTO.SocialLoginRequest request
+    ) {
         AuthResponseDTO.LoginResult result;
 
         switch (request.getLoginType()) {
-            case KAKAO -> result = loginService.kakaoLoginWithAccessToken(request.getAccessToken());
-            case NAVER -> result = loginService.naverLoginWithAccessToken(request.getAccessToken());
-            case GOOGLE -> result = loginService.googleLoginWithAccessToken(request.getAccessToken());
+            case KAKAO ->
+                    result = loginService.kakaoLoginWithAccessToken(request.getAccessToken());
+            case GOOGLE ->
+                    result = loginService.googleLoginWithAccessToken(request.getAccessToken());
+            case NAVER -> {
+                // ✅ 네이버는 code/state 로 토큰 교환
+                AuthResponseDTO.NaverToken naverToken = naverOAuthClient.requestToken(request.getCode(), request.getState());
+                log.info("발급받은 네이버 accessToken={}", naverToken.getAccessToken());
+
+                result = loginService.naverLoginWithAccessToken(naverToken.getAccessToken());
+            }
             default -> throw new UserException(ErrorStatus.NO_SUCH_LOGIN_TYPE);
         }
 
         return BaseResponse.onSuccess(SuccessStatus.SUCCESS_LOGIN, result);
     }
+
 
     // 토큰 재발급
     @PostMapping("/refreshToken")

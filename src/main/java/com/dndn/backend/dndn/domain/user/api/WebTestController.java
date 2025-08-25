@@ -136,30 +136,22 @@ public class WebTestController {
 
     @GetMapping("/login/oauth/google")
     public String googleCallback(@RequestParam String code, Model model) {
-        // 1. 구글 토큰 및 사용자 정보 요청
+        // 1. 구글 토큰 요청
         AuthResponseDTO.GoogleToken googleToken = googleOAuthClient.requestToken(code);
+
+        // 2. 사용자 정보 요청
         AuthResponseDTO.GoogleUserInfo userInfo = googleOAuthClient.requestUserInfo(googleToken.getAccessToken());
 
-        // 2. 사용자 정보 파싱
-        Optional<AuthResponseDTO.GoogleUserInfo.GoogleAccount> googleAccountOpt = Optional.ofNullable(userInfo.getGoogleAccount());
-
-        String nickname = googleAccountOpt
-                .map(AuthResponseDTO.GoogleUserInfo.GoogleAccount::getProfile)
-                .map(AuthResponseDTO.GoogleUserInfo.GoogleAccount.Profile::getName)
-                .orElse("게스트");
-
-        String profileImageUrl = googleAccountOpt
-                .map(AuthResponseDTO.GoogleUserInfo.GoogleAccount::getProfile)
-                .map(AuthResponseDTO.GoogleUserInfo.GoogleAccount.Profile::getProfileImageUrl)
-                .orElse(null);
+        String nickname = Optional.ofNullable(userInfo.getName()).orElse("게스트");
+        String profileImageUrl = userInfo.getProfileImage();
 
         log.info("✅ [구글 로그인 응답] id={}, nickname={}, profileImage={}", userInfo.getId(), nickname, profileImageUrl);
 
         // 3. 기존 사용자 확인 또는 신규 저장
-        User user = userRepository.findBySocialId(String.valueOf(userInfo.getId()))
+        User user = userRepository.findBySocialId(userInfo.getId())
                 .orElseGet(() -> userRepository.save(
                         User.builder()
-                                .socialId(String.valueOf(userInfo.getId()))
+                                .socialId(userInfo.getId())
                                 .profileImageUrl(profileImageUrl)
                                 .name("미입력")
                                 .phoneNumber("미입력")
@@ -175,14 +167,15 @@ public class WebTestController {
         String jwtAccessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
         String jwtRefreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
-        // 5. 모델에 전달 (Google 로그인 결과 뿌릴 HTML 필요)
+        // 5. 모델 전달
         model.addAttribute("authCode", code);
         model.addAttribute("googleAccessToken", googleToken.getAccessToken());
         model.addAttribute("googleRefreshToken", googleToken.getRefreshToken());
         model.addAttribute("accessToken", jwtAccessToken);
         model.addAttribute("refreshToken", jwtRefreshToken);
 
-        return "googleCallback"; // googleCallback.html 로 이동
+        return "googleCallback"; // googleCallback.html
     }
+
 
 }

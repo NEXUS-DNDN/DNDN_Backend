@@ -1,5 +1,6 @@
 package com.dndn.backend.dndn.domain.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -61,11 +62,9 @@ public class AuthResponseDTO {
         }
     }
 
-    // ✅ 네이버 Access/Refresh Token 응답 DTO
-    @Builder
-    @Getter
+    @Data // Getter + Setter + toString
     @NoArgsConstructor
-    @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class NaverToken {
         @JsonProperty("access_token")
         private String accessToken;
@@ -77,11 +76,12 @@ public class AuthResponseDTO {
         private String tokenType;
 
         @JsonProperty("expires_in")
-        private Long expiresIn;
+        private String expiresIn;
 
         @JsonProperty("refresh_token_expires_in")
-        private Long refreshTokenExpiresIn;
+        private String refreshTokenExpiresIn;
     }
+
 
     // ✅ 네이버 유저 정보 응답 DTO (카카오 스타일)
     @Getter

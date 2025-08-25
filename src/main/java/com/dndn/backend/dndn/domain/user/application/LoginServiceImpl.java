@@ -48,7 +48,6 @@ public class LoginServiceImpl implements LoginService {
         }
     }
 
-
     // 인증번호 검증 + JWT 발급
     @Transactional
     @Override
@@ -76,51 +75,7 @@ public class LoginServiceImpl implements LoginService {
                 .build();
     }
 
-
-    // KAKAO 웹 로그인
-    @Transactional
-    @Override
-    public AuthResponseDTO.LoginResult kakaoLogin(String code) {
-
-        // 카카오 accessToken 발급
-        AuthResponseDTO.KakaoToken token = kakaoOAuthClient.requestToken(code);
-
-        // accessToken으로 사용자 정보 요청
-        AuthResponseDTO.KakaoUserInfo userInfo = kakaoOAuthClient.requestUserInfo(token.getAccessToken());
-
-        // 유저 존재 여부 확인
-        User user = userRepository.save(
-                User.builder()
-                        .socialId(String.valueOf(userInfo.getId()))
-                        .profileImageUrl(userInfo.getKakaoAccount().getProfile().getProfileImageUrl())
-                        .name("미입력")
-                        .phoneNumber("미입력")
-                        .birthday(null)
-                        .address("미입력")
-                        .householdNumber(0)
-                        .monthlyIncome(IncomeRange.UNDER_100)
-                        .gender(GenderType.UNKNOWN)
-                        .build()
-        );
-
-        boolean isNewUser = !userRepository.existsBySocialId(String.valueOf(userInfo.getId()));
-
-        // JWT 토큰 발급
-        String jwtAccessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
-        String jwtRefreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
-        // Redis에 refreshToken 저장
-        redisTemplate.opsForValue().set(
-                "refresh:userId:" + user.getId(),
-                jwtRefreshToken,
-                jwtUtil.getRefreshTokenValidity(),
-                TimeUnit.MILLISECONDS
-        );
-
-        // 최종 응답 (카카오 access/refresh 토큰도 포함해서 반환)
-        return LoginConverter.toKAKAOWebLoginResponse(jwtAccessToken, jwtRefreshToken, isNewUser, token);
-    }
-
-    // KAKAO 앱 로그인
+    // KAKAO 로그인
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult kakaoLoginWithAccessToken(String kakaoAccessToken) {
@@ -164,54 +119,7 @@ public class LoginServiceImpl implements LoginService {
         return LoginConverter.toKAKAOLoginResponse(accessToken, refreshToken, kakaoAccessToken, isNewUser);
     }
 
-    // 네이버 웹 로그인
-    @Transactional
-    @Override
-    public AuthResponseDTO.LoginResult naverLogin(String code) {
-        // 네이버 access token 발급
-        AuthResponseDTO.NaverToken token = naverOAuthClient.requestToken(code);
-
-        // 사용자 정보 요청
-        AuthResponseDTO.NaverUserInfo userInfo = naverOAuthClient.requestUserInfo(token.getAccessToken());
-
-        // 유저 존재 여부 확인
-        String socialId = userInfo.getResponse().getId();
-        Optional<User> existingUser = userRepository.findBySocialId(socialId);
-        boolean isNewUser = existingUser.isEmpty();
-
-        // 없으면 새로 저장
-        User user = existingUser.orElseGet(() -> userRepository.save(
-                User.builder()
-                        .socialId(socialId)
-                        .profileImageUrl(userInfo.getResponse().getProfileImage())
-                        .name(userInfo.getResponse().getName() != null ? userInfo.getResponse().getName() : "미입력")
-                        .phoneNumber(userInfo.getResponse().getMobile() != null ? userInfo.getResponse().getMobile() : "미입력")
-                        .birthday(null)
-                        .address("미입력")
-                        .householdNumber(0)
-                        .monthlyIncome(IncomeRange.UNDER_100)
-                        .gender(GenderType.UNKNOWN)
-                        .build()
-        ));
-
-        // JWT 토큰 발급
-        String accessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
-        String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
-
-        // Redis 저장
-        redisTemplate.opsForValue().set(
-                "refresh:userId:" + user.getId(),
-                refreshToken,
-                jwtUtil.getRefreshTokenValidity(),
-                TimeUnit.MILLISECONDS
-        );
-
-        // 응답 반환
-        return LoginConverter.toNAVERWebLoginResponse(accessToken, refreshToken, isNewUser, token);
-    }
-
-
-    // 네이버 앱 로그인
+    // 네이버 로그인
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult naverLoginWithAccessToken(String naverAccessToken) {
@@ -252,54 +160,7 @@ public class LoginServiceImpl implements LoginService {
         return LoginConverter.toNAVERLoginResponse(accessToken, refreshToken, naverAccessToken, isNewUser);
     }
 
-
-    // 구글 웹 로그인
-    @Transactional
-    @Override
-    public AuthResponseDTO.LoginResult googleLogin(String code) {
-        // 구글 access token 발급
-        AuthResponseDTO.GoogleToken token = googleOAuthClient.requestToken(code);
-
-        // 사용자 정보 요청
-        AuthResponseDTO.GoogleUserInfo userInfo = googleOAuthClient.requestUserInfo(token.getAccessToken());
-
-        // 유저 존재 여부 확인
-        String socialId = String.valueOf(userInfo.getId());
-        Optional<User> existingUser = userRepository.findBySocialId(socialId);
-        boolean isNewUser = existingUser.isEmpty();
-
-        // 없으면 새로 저장
-        User user = existingUser.orElseGet(() -> userRepository.save(
-                User.builder()
-                        .socialId(socialId)
-                        .profileImageUrl(userInfo.getGoogleAccount().getProfile().getProfileImageUrl())
-                        .name("미입력")
-                        .phoneNumber("미입력")
-                        .birthday(null)
-                        .address("미입력")
-                        .householdNumber(0)
-                        .monthlyIncome(IncomeRange.UNDER_100)
-                        .gender(GenderType.UNKNOWN)
-                        .build()
-        ));
-
-        // JWT 토큰 발급
-        String accessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
-        String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
-
-        // Redis 저장
-        redisTemplate.opsForValue().set(
-                "refresh:userId:" + user.getId(),
-                refreshToken,
-                jwtUtil.getRefreshTokenValidity(),
-                TimeUnit.MILLISECONDS
-        );
-
-        // 응답 반환
-        return LoginConverter.toGOOGLEWebLoginResponse(accessToken, refreshToken, isNewUser, token);
-    }
-
-    // 구글 앱 로그인
+    // 구글 로그인
     @Transactional
     @Override
     public AuthResponseDTO.LoginResult googleLoginWithAccessToken(String googleAccessToken) {
@@ -351,9 +212,9 @@ public class LoginServiceImpl implements LoginService {
         String redisKey = "refresh:userId:" + userId;
         String storedRefreshToken = redisTemplate.opsForValue().get(redisKey);
 
-        // if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-        //     throw new UserException(ErrorStatus.INVALID_REFRESH_TOKEN);
-        // }
+//        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+//            throw new UserException(ErrorStatus.INVALID_REFRESH_TOKEN);
+//        }
 
         // 새 JWT 토큰 생성
         String newAccessToken = jwtUtil.generateAccessToken(String.valueOf(userId));

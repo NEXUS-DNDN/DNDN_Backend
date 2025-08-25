@@ -117,49 +117,21 @@ public class WebTestController {
     }
 
     @GetMapping("/login/oauth/naver")
-    public String naverCallback(@RequestParam String code, Model model) {
-        // 1. 네이버 토큰 및 사용자 정보 요청
-        AuthResponseDTO.NaverToken naverToken = naverOAuthClient.requestToken(code);
-        AuthResponseDTO.NaverUserInfo userInfo = naverOAuthClient.requestUserInfo(naverToken.getAccessToken());
+    public String naverCallBack(
+            @RequestParam String code,
+            @RequestParam String state,
+            Model model
+    ) {
+        // ✅ code/state만 모델에 담아서 뷰에 전달
+        log.info("네이버 로그인 code={}, state={}", code, state);
 
-        // 2. 사용자 정보 파싱
-        AuthResponseDTO.NaverUserInfo.Response naverResp = userInfo.getResponse();
-
-        String nickname = Optional.ofNullable(naverResp.getNickname()).orElse("게스트");
-        String profileImageUrl = naverResp.getProfileImage();
-        String socialId = naverResp.getId();
-
-        log.info("✅ [네이버 로그인 응답] id={}, nickname={}, profileImage={}", socialId, nickname, profileImageUrl);
-
-        // 3. 기존 사용자 확인 또는 신규 저장
-        User user = userRepository.findBySocialId(socialId)
-                .orElseGet(() -> userRepository.save(
-                        User.builder()
-                                .socialId(socialId)
-                                .profileImageUrl(profileImageUrl)
-                                .name("미입력")
-                                .phoneNumber("미입력")
-                                .birthday(null)
-                                .address("미입력")
-                                .householdNumber(0)
-                                .monthlyIncome(IncomeRange.UNDER_100)
-                                .gender(GenderType.UNKNOWN)
-                                .build()
-                ));
-
-        // 4. JWT 발급
-        String jwtAccessToken = jwtUtil.generateAccessToken(String.valueOf(user.getId()));
-        String jwtRefreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
-
-        // 5. 모델에 전달
         model.addAttribute("authCode", code);
-        model.addAttribute("naverAccessToken", naverToken.getAccessToken());
-        model.addAttribute("naverRefreshToken", naverToken.getRefreshToken());
-        model.addAttribute("accessToken", jwtAccessToken);
-        model.addAttribute("refreshToken", jwtRefreshToken);
+        model.addAttribute("state", state);
 
-        return "naverCallback"; // naverCallback.html 렌더링
+        // code/state만 보여주는 뷰
+        return "naverCallBack"; //
     }
+
 
 
     @GetMapping("/login/oauth/google")

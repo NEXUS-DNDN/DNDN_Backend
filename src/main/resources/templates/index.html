@@ -15,7 +15,10 @@
 
 <!-- ✅ 네이버 로그인 -->
 <h2>
-  <a th:href="'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=' + ${naverClientId} + '&redirect_uri=' + ${naverRedirectUri} + '&state=naver1234'">
+  <a th:href="'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id='
+                + ${naverClientId}
+                + '&redirect_uri=' + ${naverRedirectUri}
+                + '&state=naver1234'">
     네이버 로그인
   </a>
 </h2>
@@ -25,23 +28,22 @@
   <a href="#" onclick="googleLogin(); return false;">구글 로그인</a>
 </h2>
 
-<!-- ✅ 스크립트들은 마지막에 위치 -->
 <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
 <script src="https://static.nid.naver.com/js/naveridlogin.js"></script>
 
 <script th:inline="javascript">
   // 카카오
-  Kakao.init([[${kakaoApiKey}]]); // ✅ 수정됨
+  Kakao.init([[${kakaoApiKey}]]);
   function kakaoLogin() {
     Kakao.Auth.authorize({
-      redirectUri: [[${kakaoRedirectUri}]], // ✅ 이것도 수정
+      redirectUri: [[${kakaoRedirectUri}]],
       scope: "profile_nickname, profile_image"
     });
   }
 
   // 네이버
   var naverLogin = new naver.LoginWithNaverId({
-    clientId: [[${naverClientId}]],        // ✅ 문자열은 모두 ''로 감싸기
+    clientId: [[${naverClientId}]],
     callbackUrl: [[${naverRedirectUri}]],
     isPopup: false,
     loginButton: { color: "green", type: 3, height: 40 }
